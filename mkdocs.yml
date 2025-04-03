@@ -20,6 +20,7 @@ theme:
 
 nav:
     - Home: index.md
+    - BLE-Minimal Skeleton: 01_ble-minimal-skeleton.md
 
 copyright: Copyright &copy; 2025 Tony Fu
 

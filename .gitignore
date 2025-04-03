@@ -17,3 +17,48 @@ Thumbs.db
 
 # VS Code settings (optional)
 .vscode/
+
+# Ignore all build folders under ./src/*
+src/*/build/
+
+# But keep merged.hex files
+!src/*/build/merged.hex
+
+# Build artifacts
+/build/
+*.out
+*.bin
+*.map
+*.d
+*.o
+*.lst
+
+# Object and dependency files anywhere
+**/*.o
+**/*.d
+
+# Logs and core dumps
+*.log
+core
+
+# VS Code settings (optional)
+.vscode/
+
+# OS/macOS-specific
+.DS_Store
+Thumbs.db
+
+# Backup/temporary files
+*~
+*.swp
+*.swo
+*.bak
+
+# Python or scripting artifacts (if used)
+__pycache__/
+*.pyc
+
+# nRF Connect SDK/Tool specific
+nrfutil_temp.zip
+
+/NotUsed/
