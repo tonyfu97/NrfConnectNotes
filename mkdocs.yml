@@ -1,0 +1,30 @@
+site_name: nRF Connect SDK Notes
+site_url: https://tonyfu97.github.io/NrfConnectNotes/
+site_description: Study Notes for nRF Connect SDK
+site_author: Tony Fu
+
+repo_url: https://github.com/tonyfu97/NrfConnectNotes
+edit_uri: blob/master/docs/
+
+theme:
+    name: readthedocs
+    locale: en
+    analytics: {gtag: 'G-274394082'}
+    highlightjs: true
+    hljs_languages:
+        - yaml
+        - django
+    features:
+      - content.codehilite
+      - content.code.copy
+
+nav:
+    - Home: index.md
+
+copyright: Copyright &copy; 2025 Tony Fu
+
+extra_javascript:
+  - https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML
+
+markdown_extensions:
+  - pymdownx.arithmatex
