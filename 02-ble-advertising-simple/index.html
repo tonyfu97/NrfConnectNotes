@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/02-ble-advertising-simple/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>BLE-Advertising Simple - nRF Connect SDK Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "BLE-Advertising Simple";
+        var mkdocs_page_input_path = "02-ble-advertising-simple.md";
+        var mkdocs_page_url = "/NrfConnectNotes/02-ble-advertising-simple/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/django.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', "G-274394082");
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> nRF Connect SDK Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../01-ble-minimal-skeleton/">BLE-Minimal Skeleton</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">BLE-Advertising Simple</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#common-advertising-params">Common Advertising Params</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#advertising-data-and-scan-response-data">Advertising Data and Scan Response Data</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#advertising-data-ad">Advertising Data (ad[])</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#scan-response-data-sd">Scan Response Data (sd[])</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#common-advertising-data-types">Common Advertising Data Types</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#common-in-ad-advertising">Common in ad[] (Advertising)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#common-in-sd-scan-response">Common in sd[] (Scan Response)</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">nRF Connect SDK Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">BLE-Advertising Simple</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/02-ble-advertising-simple.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="02-ble-advertising-simple">02 - BLE Advertising Simple</h1>
+<p>To advertise your device, you need to call <code>bt_le_adv_start()</code> with the right parameters.</p>
+<pre><code class="language-c">int bt_le_adv_start(const struct bt_le_adv_param *param,
+            const struct bt_data *ad, size_t ad_len,
+            const struct bt_data *sd, size_t sd_len);
+</code></pre>
+<ul>
+<li><code>param</code>: Advertising parameters (defines behavior)</li>
+<li><code>ad</code>: Advertising data (broadcasted to all scanners)</li>
+<li><code>sd</code>: Scan response data (optional, sent after scan request)</li>
+</ul>
+<hr />
+<h2 id="common-advertising-params">Common Advertising Params</h2>
+<ol>
+<li><code>BT_LE_ADV_CONN</code> - Connectable undirected advertising, but still advertises to all devices after connected to a peer. This could be bad for power consumption and security.</li>
+<li><code>BT_LE_ADV_CONN_ONE_TIME</code> - Connectable undirected advertising, but stops after the first connection. This is the <strong>recommended default</strong> for most applications.</li>
+<li><code>BT_LE_ADV_CONN_DIR</code> - Connectable directed advertising, which is used when you know the peer address. This is faster and less power-hungry than undirected advertising.</li>
+<li><code>BT_LE_ADV_NCONN</code> - Non-connectable undirected advertising, which is used when you don't want to be connected to. This is useful for beacons and other passive broadcasts.</li>
+<li><code>BT_LE_ADV_CONN_DIR_LOW_DUTY</code> - Connectable directed advertising with a lower duty cycle, which is used when you don't expect to be connected to immediately but still want to reconnect with a known peer.</li>
+<li><code>BT_LE_ADV_NCONN_IDENTITY</code> - Non-connectable advertising that uses the device's identity address, which is useful for testing and visibility.</li>
+</ol>
+<p><strong>Note:</strong> To prevent tracking, advertising modes like <code>BT_LE_ADV_CONN</code>, <code>BT_LE_ADV_CONN_ONE_TIME</code>, and <code>BT_LE_ADV_NCONN</code> (params 1, 2, and 4) use <strong>Resolvable Private Addresses</strong> (RPAs) by default. RPAs are a privacy feature introduced in Bluetooth 4.2. They are generated using the device’s identity address (public or static random) and a random value, and they typically change every 15 minutes.</p>
+<p>This allows trusted, bonded peers to resolve your identity, while third parties cannot track the device over time. RPA behavior is enabled by default when <code>CONFIG_BT_PRIVACY=y</code>, but it can be disabled if needed. To explicitly advertise with your identity address (e.g., for testing or directed advertising), use the <code>BT_LE_ADV_OPT_USE_IDENTITY</code> option.</p>
+<hr />
+<h2 id="advertising-data-and-scan-response-data">Advertising Data and Scan Response Data</h2>
+<h3 id="advertising-data-ad">Advertising Data (ad[])</h3>
+<pre><code class="language-c">static const struct bt_data ad[] = {
+    BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR)),
+    BT_DATA(BT_DATA_NAME_COMPLETE, DEVICE_NAME, DEVICE_NAME_LEN),
+};
+</code></pre>
+<p>This example shows how to define <strong>advertising data</strong> using <code>struct bt_data</code>.</p>
+<pre><code class="language-c">struct bt_data {
+    uint8_t type;
+    uint8_t data_len;
+    const uint8_t *data;
+};
+
+However, we typically don't define `struct bt_data` directly. Instead, we use macros to simplify the process.
+
+```c
+BT_DATA(type, data, data_len)        // Use with a pointer and explicit size
+BT_DATA_BYTES(type, byte1, byte2...) // Inline declaration with raw bytes
+</code></pre>
+<p>In advertising data, we must always include the following fields:</p>
+<pre><code class="language-c">BT_DATA_BYTES(BT_DATA_FLAGS, (BT_LE_AD_GENERAL | BT_LE_AD_NO_BREDR))
+</code></pre>
+<p>This is <strong>always used on Nordic devices</strong> because Nordic only supports BLE (not BR/EDR), and this is why we include <code>&lt;zephyr/bluetooth/gap.h&gt;</code> for the bitmasks.</p>
+<p>and</p>
+<pre><code class="language-c">BT_DATA(BT_DATA_NAME_COMPLETE, DEVICE_NAME, DEVICE_NAME_LEN)
+</code></pre>
+<h3 id="scan-response-data-sd">Scan Response Data (sd[])</h3>
+<p>Use scan response (sd) when you want to include optional, larger data like a full device name or a URL. Advertising data is always broadcast; scan response is only sent when a scanner asks for it, making it more power-efficient and less crowded.</p>
+<pre><code class="language-c">#define COMPANY_ID_CODE 0x0059 // Nordic Semiconductor
+typedef struct
+{
+    uint16_t company_id; // Company ID
+    uint8_t data[6];     // Custom Data
+} my_data_t;
+
+static const my_data_t my_data = {
+    .company_id = COMPANY_ID_CODE,
+    .data = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06}};
+</code></pre>
+<p>When the advertising data is too large to fit in advertising packets, the scanner can request a scan response. This is not shown here.</p>
+<hr />
+<h2 id="common-advertising-data-types">Common Advertising Data Types</h2>
+<h3 id="common-in-ad-advertising">Common in <code>ad[]</code> (Advertising)</h3>
+<table>
+<thead>
+<tr>
+<th>Macro</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BT_DATA_FLAGS</code></td>
+<td>BLE flags (required)</td>
+</tr>
+<tr>
+<td><code>BT_DATA_NAME_COMPLETE</code></td>
+<td>Complete device name</td>
+</tr>
+<tr>
+<td><code>BT_DATA_UUID16_ALL</code></td>
+<td>List of 16-bit service UUIDs</td>
+</tr>
+<tr>
+<td><code>BT_DATA_UUID128_ALL</code></td>
+<td>List of 128-bit service UUIDs</td>
+</tr>
+<tr>
+<td><code>BT_DATA_MANUFACTURER_DATA</code></td>
+<td>Vendor-specific binary data</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-in-sd-scan-response">Common in <code>sd[]</code> (Scan Response)</h3>
+<table>
+<thead>
+<tr>
+<th>Macro</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BT_DATA_URI</code></td>
+<td>URI string (e.g., website)</td>
+</tr>
+<tr>
+<td><code>BT_DATA_TX_POWER</code></td>
+<td>Transmission power (in dBm)</td>
+</tr>
+<tr>
+<td><code>BT_DATA_APPEARANCE</code></td>
+<td>Device appearance (e.g., watch)</td>
+</tr>
+<tr>
+<td><code>BT_DATA_NAME_SHORTENED</code></td>
+<td>Shortened name (if full name won't fit)</td>
+</tr>
+</tbody>
+</table>
+<p>More on service UUIDs later.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../01-ble-minimal-skeleton/" class="btn btn-neutral float-left" title="BLE-Minimal Skeleton"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../01-ble-minimal-skeleton/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

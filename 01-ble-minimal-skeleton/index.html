@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/01_ble-minimal-skeleton/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/01-ble-minimal-skeleton/" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
     <title>BLE-Minimal Skeleton - nRF Connect SDK Notes</title>
     <link rel="stylesheet" href="../css/theme.css" />
@@ -13,8 +13,8 @@
       <script>
         // Current page data
         var mkdocs_page_name = "BLE-Minimal Skeleton";
-        var mkdocs_page_input_path = "01_ble-minimal-skeleton.md";
-        var mkdocs_page_url = "/NrfConnectNotes/01_ble-minimal-skeleton/";
+        var mkdocs_page_input_path = "01-ble-minimal-skeleton.md";
+        var mkdocs_page_url = "/NrfConnectNotes/01-ble-minimal-skeleton/";
       </script>
     
     <!--[if lt IE 9]>
@@ -63,6 +63,10 @@
     </ul>
                 </li>
               </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../02-ble-advertising-simple/">BLE-Advertising Simple</a>
+                </li>
+              </ul>
       </div>
     </div>
     </nav>
@@ -79,7 +83,7 @@
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
       <li class="breadcrumb-item active">BLE-Minimal Skeleton</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/01_ble-minimal-skeleton.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/01-ble-minimal-skeleton.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -87,7 +91,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="minimal-ble-skeleton">Minimal BLE Skeleton</h1>
+                <h1 id="01-minimal-ble-skeleton">01 - Minimal BLE Skeleton</h1>
 <p>This example sets up the <strong>Bluetooth stack only</strong> — no advertising, no services, no connections. Useful as a clean starting point.</p>
 <h2 id="configuration-prjconf">Configuration: <code>prj.conf</code></h2>
 <pre><code class="language-conf"># Enable basic logging
@@ -136,6 +140,7 @@ int main(void)
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../02-ble-advertising-simple/" class="btn btn-neutral float-right" title="BLE-Advertising Simple">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -165,6 +170,8 @@ int main(void)
     
       <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
     
+    
+      <span><a href="../02-ble-advertising-simple/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
