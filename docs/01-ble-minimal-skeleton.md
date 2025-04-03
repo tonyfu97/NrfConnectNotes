@@ -1,4 +1,4 @@
-# Minimal BLE Skeleton
+# 01 - Minimal BLE Skeleton
 
 This example sets up the **Bluetooth stack only** — no advertising, no services, no connections. Useful as a clean starting point.
 
