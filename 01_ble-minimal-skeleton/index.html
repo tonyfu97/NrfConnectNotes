@@ -3,22 +3,22 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="Study Notes for nRF Connect SDK" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/" />
-      <link rel="shortcut icon" href="img/favicon.ico" />
-    <title>nRF Connect SDK Notes</title>
-    <link rel="stylesheet" href="css/theme.css" />
-    <link rel="stylesheet" href="css/theme_extra.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/01_ble-minimal-skeleton/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>BLE-Minimal Skeleton - nRF Connect SDK Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Home";
-        var mkdocs_page_input_path = "index.md";
-        var mkdocs_page_url = "/NrfConnectNotes/";
+        var mkdocs_page_name = "BLE-Minimal Skeleton";
+        var mkdocs_page_input_path = "01_ble-minimal-skeleton.md";
+        var mkdocs_page_url = "/NrfConnectNotes/01_ble-minimal-skeleton/";
       </script>
     
     <!--[if lt IE 9]>
-      <script src="js/html5shiv.min.js"></script>
+      <script src="../js/html5shiv.min.js"></script>
     <![endif]-->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
@@ -40,23 +40,27 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
-          <a href="." class="icon icon-home"> nRF Connect SDK Notes
+          <a href=".." class="icon icon-home"> nRF Connect SDK Notes
         </a><div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
   </form>
 </div>
       </div>
 
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Home</a>
-    <ul class="current">
-    </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="01_ble-minimal-skeleton/">BLE-Minimal Skeleton</a>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">BLE-Minimal Skeleton</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#configuration-prjconf">Configuration: prj.conf</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#code-structure-mainc">Code Structure: main.c</a>
+    </li>
+    </ul>
                 </li>
               </ul>
       </div>
@@ -66,16 +70,16 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
       <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href=".">nRF Connect SDK Notes</a>
+          <a href="..">nRF Connect SDK Notes</a>
         
       </nav>
       <div class="wy-nav-content">
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
-    <li><a href="." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Home</li>
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">BLE-Minimal Skeleton</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/index.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/01_ble-minimal-skeleton.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -83,13 +87,55 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="nrf-connect-sdk-notes">nRF Connect SDK Notes</h1>
-<p>This site contains my notes for the official courses on <a href="https://academy.nordicsemi.com/">Nordic Developer Academy</a>.</p>
+                <h1 id="minimal-ble-skeleton">Minimal BLE Skeleton</h1>
+<p>This example sets up the <strong>Bluetooth stack only</strong> — no advertising, no services, no connections. Useful as a clean starting point.</p>
+<h2 id="configuration-prjconf">Configuration: <code>prj.conf</code></h2>
+<pre><code class="language-conf"># Enable basic logging
+CONFIG_LOG=y
+
+# Enable Bluetooth stack
+CONFIG_BT=y
+
+# Optional: Set device name (not used here but required for CONFIG_BT)
+CONFIG_BT_DEVICE_NAME=&quot;Minimal_BLE&quot;
+
+# Increase stack sizes for stability
+CONFIG_SYSTEM_WORKQUEUE_STACK_SIZE=2048
+CONFIG_MAIN_STACK_SIZE=2048
+</code></pre>
+<h2 id="code-structure-mainc">Code Structure: <code>main.c</code></h2>
+<pre><code class="language-c">#include &lt;zephyr/kernel.h&gt;
+#include &lt;zephyr/logging/log.h&gt;
+#include &lt;zephyr/bluetooth/bluetooth.h&gt;
+
+LOG_MODULE_REGISTER(minimal_ble, LOG_LEVEL_INF);
+
+int main(void)
+{
+    int err;
+
+    LOG_INF(&quot;Minimal BLE Example Start&quot;);
+
+    // Initialize the Bluetooth stack
+    err = bt_enable(NULL);
+    if (err) {
+        LOG_ERR(&quot;Bluetooth init failed (err %d)&quot;, err);
+        return -1;
+    }
+
+    LOG_INF(&quot;Bluetooth initialized&quot;);
+
+    // Idle loop
+    while (1) {
+        k_sleep(K_SECONDS(1));
+    }
+}
+</code></pre>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="01_ble-minimal-skeleton/" class="btn btn-neutral float-right" title="BLE-Minimal Skeleton">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
     </div>
 
   <hr/>
@@ -117,17 +163,17 @@
         </span>
     
     
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
     
-      <span><a href="01_ble-minimal-skeleton/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
-    <script src="js/jquery-3.6.0.min.js"></script>
-    <script>var base_url = ".";</script>
-    <script src="js/theme_extra.js"></script>
-    <script src="js/theme.js"></script>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-      <script src="search/main.js"></script>
+      <script src="../search/main.js"></script>
     <script>
         jQuery(function () {
             SphinxRtdTheme.Navigation.enable(true);
@@ -136,8 +182,3 @@
 
 </body>
 </html>
-
-<!--
-MkDocs version : 1.6.1
-Build Date UTC : 2025-04-03 09:01:28.401497+00:00
--->
