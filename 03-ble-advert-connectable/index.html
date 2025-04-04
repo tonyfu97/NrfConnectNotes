@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/03-ble-advert-connectable/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>BLE-Advertising Connectable - nRF Connect SDK Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "BLE-Advertising Connectable";
+        var mkdocs_page_input_path = "03-ble-advert-connectable.md";
+        var mkdocs_page_url = "/NrfConnectNotes/03-ble-advert-connectable/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/django.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', "G-274394082");
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> nRF Connect SDK Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../01-ble-minimal-skeleton/">BLE-Minimal Skeleton</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../02-ble-advertising-simple/">BLE-Advertising Simple</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">BLE-Advertising Connectable</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#advertising-intervals">Advertising Intervals</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#guidelines">Guidelines</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#gap-advertising-parameters">GAP Advertising Parameters</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#gap-periodic-advertising-parameters">GAP Periodic Advertising Parameters</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#gap-scan-parameters">GAP Scan Parameters</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#gap-initial-connection-parameters">GAP Initial Connection Parameters</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#additional-notes-on-timing-coordination">Additional Notes on Timing Coordination</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#understanding-scan-interval-and-scan-window">Understanding Scan Interval and Scan Window</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#coordinating-with-advertising-intervals">Coordinating With Advertising Intervals</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example-timing-coordination">Example Timing Coordination</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#notes-on-scan-response-timing">Notes on Scan Response Timing</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#power-considerations">Power Considerations</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#summary-guidelines">Summary Guidelines</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#aside-ble-address-types">Aside: BLE Address Types</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-public-address">1. Public Address</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#get-the-default-public-address">Get the default public address:</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-random-static-address">2. Random Static Address</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#set-a-static-random-address-manually">Set a static random address manually:</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-resolvable-private-address-rpa">3. Resolvable Private Address (RPA)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-non-resolvable-private-address-nrpa">4. Non-Resolvable Private Address (NRPA)</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#set-nrpa-explicitly">Set NRPA explicitly:</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#connection-callbacks">Connection Callbacks</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#basic-callbacks">Basic Callbacks</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#registering-callbacks">Registering Callbacks</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#other-available-callbacks-in-bt_conn_cb">Other Available Callbacks in bt_conn_cb</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">nRF Connect SDK Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">BLE-Advertising Connectable</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/03-ble-advert-connectable.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="03-ble-advertising-connectable">03 - BLE Advertising: Connectable</h1>
+<p>To make a device connectable, we need to enable the Bluetooth peripheral role and set the advertising parameters accordingly.</p>
+<p>Add this to your <code>prj.conf</code> file:</p>
+<pre><code class="language-Kconfig">CONFIG_BT_PERIPHERAL=y
+</code></pre>
+<p>In previous examples, we used the predefined macro <code>BT_LE_ADV_NCONN</code> for non-connectable advertising. To allow connections, we need different parameters like <code>BT_LE_ADV_CONN_ONE_TIME</code>. We can also define our own advertising parameters with the help of the <code>BT_LE_ADV_PARAM()</code> macro:</p>
+<pre><code class="language-c">BT_LE_ADV_PARAM(_options, _int_min, _int_max, _peer)
+</code></pre>
+<ul>
+<li><code>_options</code>: A bitmask of advertising options (e.g., connectable, use identity, etc.)</li>
+<li><code>_int_min</code>, <code>_int_max</code>: Advertising interval (units of 0.625 ms)</li>
+<li><code>_peer</code>: Peer address; set to <code>NULL</code> for undirected advertising</li>
+</ul>
+<p>Example parameters for connectable advertising:</p>
+<pre><code class="language-c">static const struct bt_le_adv_param *adv_param = BT_LE_ADV_PARAM(
+    (BT_LE_ADV_OPT_CONNECTABLE |
+     BT_LE_ADV_OPT_USE_IDENTITY), /* Connectable advertising and use identity address */
+    BT_GAP_ADV_FAST_INT_MIN_2, /* Min Advertising Interval 100 ms */
+    BT_GAP_ADV_FAST_INT_MAX_2, /* Max Advertising Interval 150 ms */
+    NULL); /* Set to NULL for undirected advertising */
+</code></pre>
+<p>Common <code>options</code> flags include:</p>
+<ul>
+<li><code>BT_LE_ADV_OPT_CONNECTABLE</code>: Allow devices to connect</li>
+<li><code>BT_LE_ADV_OPT_ONE_TIME</code>: Stop advertising after one connection</li>
+<li><code>BT_LE_ADV_OPT_USE_IDENTITY</code>: Use the device's identity address (not RPA)</li>
+<li><code>BT_LE_ADV_OPT_USE_NAME</code>: Automatically include the GAP device name</li>
+<li><code>BT_LE_ADV_OPT_SCANNABLE</code>: Enable scan response data</li>
+<li><code>BT_LE_ADV_OPT_EXT_ADV</code>: Use extended advertising features (for longer range or larger data)</li>
+<li><code>BT_LE_ADV_OPT_FILTER_SCAN_REQ</code>: Only respond to scanners in the filter list</li>
+<li><code>BT_LE_ADV_OPT_FILTER_CONN</code>: Only allow connections from filtered peers</li>
+</ul>
+<p>This setup allows your device to be discoverable and accept connections from central devices like phones or PCs. However, it will continue to advertise even after a connection is established, which may not be ideal for power consumption or security. To stop advertising after the first connection, add the <code>BT_LE_ADV_OPT_ONE_TIME</code> option.</p>
+<hr />
+<h2 id="advertising-intervals">Advertising Intervals</h2>
+<p>The <strong>advertising interval</strong> controls how often your device broadcasts its advertising packets. It is set using <code>_int_min</code> and <code>_int_max</code> in <code>BT_LE_ADV_PARAM()</code> and is specified in units of 0.625 ms.</p>
+<ul>
+<li><strong>Valid range</strong>: 20 ms to 10.24 seconds</li>
+<li><strong>Resolution</strong>: 0.625 ms steps</li>
+</ul>
+<p>You can set:
+- <code>min == max</code> → Fixed interval (allowed)
+- <code>min &lt; max</code> → Interval chosen randomly within that range (typical)</p>
+<p>A small random delay (0–10 ms) is added automatically to help avoid collisions between devices using similar intervals.</p>
+<h3 id="guidelines">Guidelines</h3>
+<ul>
+<li><strong>Short intervals (~20–100 ms)</strong>: Fast discovery, higher power consumption</li>
+<li><strong>Medium intervals (~150–500 ms)</strong>: Balanced power and discovery time (good default)</li>
+<li><strong>Long intervals (&gt;1 s)</strong>: Low power, slower to be discovered</li>
+</ul>
+<p>Choose an interval based on your application:
+- For <strong>wearables</strong> or <strong>low-power sensors</strong>, favor longer intervals
+- For <strong>pairing mode</strong> or <strong>quick reconnection</strong>, use shorter intervals</p>
+<p>Some constants are defined in <code>zephyr/bluetooth/gap.h</code> for common intervals:</p>
+<h4 id="gap-advertising-parameters">GAP Advertising Parameters</h4>
+<p>These are predefined intervals for <strong>legacy advertisement</strong> (connectable or scannable), used by many macros like <code>BT_LE_ADV_CONN</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Macro</th>
+<th>Hex</th>
+<th>Time (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BT_GAP_ADV_FAST_INT_MIN_1</td>
+<td>0x0030</td>
+<td>30</td>
+</tr>
+<tr>
+<td>BT_GAP_ADV_FAST_INT_MAX_1</td>
+<td>0x0060</td>
+<td>60</td>
+</tr>
+<tr>
+<td>BT_GAP_ADV_FAST_INT_MIN_2</td>
+<td>0x00a0</td>
+<td>100</td>
+</tr>
+<tr>
+<td>BT_GAP_ADV_FAST_INT_MAX_2</td>
+<td>0x00f0</td>
+<td>150</td>
+</tr>
+<tr>
+<td>BT_GAP_ADV_SLOW_INT_MIN</td>
+<td>0x0640</td>
+<td>1000</td>
+</tr>
+<tr>
+<td>BT_GAP_ADV_SLOW_INT_MAX</td>
+<td>0x0780</td>
+<td>1200</td>
+</tr>
+</tbody>
+</table>
+<h4 id="gap-periodic-advertising-parameters">GAP Periodic Advertising Parameters</h4>
+<p><strong>Periodic advertising</strong> is a Bluetooth Low Energy feature introduced in Bluetooth 5 that allows a device to broadcast data at fixed, predictable intervals without requiring a connection. Unlike legacy advertising, which is sent on the primary channels and may be missed if the scanner isn't listening at the right time, periodic advertising uses a <strong>synchronizable schedule</strong> and is transmitted on secondary channels. This allows scanners to <strong>synchronize</strong> with the advertiser and receive updates reliably with lower power consumption. It's ideal for broadcasting <strong>sensor data</strong>, <strong>location beacons</strong>, or <strong>status updates</strong> where frequent connections aren't needed but consistent updates are.</p>
+<table>
+<thead>
+<tr>
+<th>Macro</th>
+<th>Hex</th>
+<th>Time (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BT_GAP_PER_ADV_FAST_INT_MIN_1</td>
+<td>0x0018</td>
+<td>30</td>
+</tr>
+<tr>
+<td>BT_GAP_PER_ADV_FAST_INT_MAX_1</td>
+<td>0x0030</td>
+<td>60</td>
+</tr>
+<tr>
+<td>BT_GAP_PER_ADV_FAST_INT_MIN_2</td>
+<td>0x0050</td>
+<td>100</td>
+</tr>
+<tr>
+<td>BT_GAP_PER_ADV_FAST_INT_MAX_2</td>
+<td>0x0078</td>
+<td>150</td>
+</tr>
+<tr>
+<td>BT_GAP_PER_ADV_SLOW_INT_MIN</td>
+<td>0x0320</td>
+<td>1000</td>
+</tr>
+<tr>
+<td>BT_GAP_PER_ADV_SLOW_INT_MAX</td>
+<td>0x03C0</td>
+<td>1200</td>
+</tr>
+</tbody>
+</table>
+<h4 id="gap-scan-parameters">GAP Scan Parameters</h4>
+<p>These define standard scan intervals and windows. The <strong>interval</strong> is how often scanning starts, and the <strong>window</strong> is how long each scan lasts.</p>
+<table>
+<thead>
+<tr>
+<th>Macro</th>
+<th>Hex</th>
+<th>Time (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BT_GAP_SCAN_FAST_INTERVAL_MIN</td>
+<td>0x0030</td>
+<td>30</td>
+</tr>
+<tr>
+<td>BT_GAP_SCAN_FAST_INTERVAL</td>
+<td>0x0060</td>
+<td>60</td>
+</tr>
+<tr>
+<td>BT_GAP_SCAN_FAST_WINDOW</td>
+<td>0x0030</td>
+<td>30</td>
+</tr>
+<tr>
+<td>BT_GAP_SCAN_SLOW_INTERVAL_1</td>
+<td>0x0800</td>
+<td>1280</td>
+</tr>
+<tr>
+<td>BT_GAP_SCAN_SLOW_WINDOW_1</td>
+<td>0x0012</td>
+<td>11.25</td>
+</tr>
+<tr>
+<td>BT_GAP_SCAN_SLOW_INTERVAL_2</td>
+<td>0x1000</td>
+<td>2560</td>
+</tr>
+<tr>
+<td>BT_GAP_SCAN_SLOW_WINDOW_2</td>
+<td>0x0012</td>
+<td>11.25</td>
+</tr>
+</tbody>
+</table>
+<h4 id="gap-initial-connection-parameters">GAP Initial Connection Parameters</h4>
+<p>These define intervals used when <strong>initiating a connection</strong> (i.e., when a central connects to a peripheral).</p>
+<table>
+<thead>
+<tr>
+<th>Macro</th>
+<th>Hex</th>
+<th>Time (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BT_GAP_INIT_CONN_INT_MIN</td>
+<td>0x0018</td>
+<td>30</td>
+</tr>
+<tr>
+<td>BT_GAP_INIT_CONN_INT_MAX</td>
+<td>0x0028</td>
+<td>50</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="additional-notes-on-timing-coordination">Additional Notes on Timing Coordination</h2>
+<p>When both the <strong>advertiser</strong> and <strong>scanner</strong> are under your control, you can optimize their timing parameters to strike a balance between <strong>discovery speed</strong>, <strong>power consumption</strong>, and <strong>reliability</strong>. This is especially useful in scenarios like proprietary ecosystems, closed systems, or when designing both ends of a BLE link (e.g., a wearable + smartphone app).</p>
+<h3 id="understanding-scan-interval-and-scan-window">Understanding Scan Interval and Scan Window</h3>
+<ul>
+<li><strong>Scan interval</strong> is how often the scanner initiates a scan cycle.</li>
+<li><strong>Scan window</strong> is how long the scanner listens during each scan interval.</li>
+<li>Both range from <strong>2.5 ms to 10.24 seconds</strong> in 0.625 ms steps.</li>
+<li>In each scan interval, the scanner will scan one of the three primary advertising channels. After the interval ends, it switches to the next channel.</li>
+</ul>
+<p>If the scan window is <strong>equal to</strong> the scan interval, the scanner is scanning <strong>continuously</strong> (100% duty cycle). If the window is <strong>shorter than</strong> the interval, it means the scanner is off part of the time — which saves power.</p>
+<blockquote>
+<p>For example, if scan interval = 100 ms and window = 20 ms, the scanner is listening only 20% of the time.</p>
+</blockquote>
+<h3 id="coordinating-with-advertising-intervals">Coordinating With Advertising Intervals</h3>
+<p>To improve the chances of the scanner receiving advertising packets:</p>
+<ul>
+<li>The <strong>advertising interval</strong> should be <strong>shorter than or equal to</strong> the scan interval. This increases the probability that an advertisement will occur <strong>during</strong> the scan window.</li>
+<li>A good rule of thumb is:<br />
+<strong>advertising interval ≤ scan interval - scan window</strong></li>
+</ul>
+<p>This ensures that at least one advertisement falls within an active scan window over multiple cycles.</p>
+<p>You can also align timing using multiples, such as:
+- Scan interval = 3 × advertising interval
+- Scan window = 50–80% of scan interval (for reasonable duty cycle)</p>
+<p>This is not a strict rule, but it helps <strong>statistically reduce missed advertisements</strong> due to phase misalignment.</p>
+<h3 id="example-timing-coordination">Example Timing Coordination</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Typical Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Advertising interval</td>
+<td>100 ms (<code>0x00A0</code>)</td>
+</tr>
+<tr>
+<td>Scan interval</td>
+<td>300 ms (<code>0x018C</code>)</td>
+</tr>
+<tr>
+<td>Scan window</td>
+<td>150 ms (<code>0x00F0</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>This setup provides good discovery speed and balances scanner energy usage.</p>
+<h3 id="notes-on-scan-response-timing">Notes on Scan Response Timing</h3>
+<ul>
+<li><strong>Scan response packets</strong> are only sent if the advertiser receives a <strong>scan request</strong>.</li>
+<li>This scan request must be sent <strong>while the advertiser is listening</strong>, and <strong>only during active scanning.</strong></li>
+<li>The <strong>non-scanning time (between windows)</strong> is <strong>not used for scan response</strong> — in fact, <strong>nothing happens</strong> during those gaps.</li>
+<li>This means <strong>larger scan windows</strong> increase the chance of triggering a scan response successfully.</li>
+</ul>
+<h3 id="power-considerations">Power Considerations</h3>
+<ul>
+<li>Scanning uses <strong>more power</strong> than advertising — so the scanner (usually the central) should be the device with more available energy (e.g., a phone).</li>
+<li>Peripheral devices (e.g., sensors, wearables) can advertise less frequently to save power and rely on <strong>burst scanning</strong> from the central.</li>
+</ul>
+<h3 id="summary-guidelines">Summary Guidelines</h3>
+<ul>
+<li>Ensure <code>advertising interval ≤ scan interval</code></li>
+<li>Keep <code>scan window</code> large enough to catch at least one advertisement</li>
+<li>Use scan window ≈ 50–100% of scan interval for faster discovery</li>
+<li>For low power devices, increase advertising interval and let central scan more aggressively</li>
+</ul>
+<hr />
+<h2 id="aside-ble-address-types">Aside: BLE Address Types</h2>
+<p>Before we continue, let's take a moment to explore the different types of Bluetooth LE addresses. Every BLE device is identified by a <strong>48-bit address</strong>, and they are grouped into two main categories: <strong>public</strong> and <strong>random</strong>. Random addresses are further split into <strong>static</strong>, <strong>resolvable private</strong>, and <strong>non-resolvable private</strong> types. The type used affects how your device is identified, whether it can be tracked, and whether connections or bonding are possible.</p>
+<h3 id="1-public-address">1. Public Address</h3>
+<ul>
+<li>A globally unique address assigned by the manufacturer and stored in the device's hardware (e.g., in FICR on nRF chips).</li>
+<li>Used automatically unless you override it with a random address or enable privacy.</li>
+</ul>
+<h4 id="get-the-default-public-address">Get the default public address:</h4>
+<pre><code class="language-c">bt_addr_le_t addr;
+bt_id_get(&amp;addr, NULL);
+</code></pre>
+<h3 id="2-random-static-address">2. Random Static Address</h3>
+<ul>
+<li>Does not change across boots — stable identity.</li>
+<li>Must follow BLE spec: the most significant two bits of the first byte must be <code>11</code> (so the first byte must be between <code>0xC0</code> and <code>0xFF</code>).</li>
+<li>Commonly used when you don't have a public address block but need a consistent identity.</li>
+</ul>
+<h4 id="set-a-static-random-address-manually">Set a static random address manually:</h4>
+<pre><code class="language-c">#include &lt;zephyr/bluetooth/addr.h&gt;
+
+bt_addr_le_t addr;
+bt_addr_le_from_str(&quot;FF:00:11:22:33:44&quot;, &quot;random&quot;, &amp;addr);
+addr.a.val[5] |= 0xC0; // Make sure MSBs are '11' to mark as static random
+
+int id = bt_id_create(&amp;addr, NULL); // Must be called before bt_enable()
+</code></pre>
+<blockquote>
+<p>In production, you might derive a unique static random address from the device’s public address or store a pre-generated one in flash/UICR.</p>
+</blockquote>
+<h3 id="3-resolvable-private-address-rpa">3. Resolvable Private Address (RPA)</h3>
+<ul>
+<li>Changes periodically (by default every 15 minutes), but can be <strong>resolved by bonded peers</strong> using an Identity Resolving Key (IRK).</li>
+<li>Enables <strong>privacy</strong> without sacrificing the ability to reconnect or bond.</li>
+</ul>
+<p>I am currently not sure how to set the RPA manually, but it should be automatically generated by the stack when you enable privacy (<code>CONFIG_BT_PRIVACY=y</code>).</p>
+<h3 id="4-non-resolvable-private-address-nrpa">4. Non-Resolvable Private Address (NRPA)</h3>
+<ul>
+<li>Also changes periodically, but <strong>cannot be resolved</strong> — not bondable or connectable.</li>
+<li>Useful for anonymous broadcasting (e.g., a privacy-focused beacon).</li>
+<li>A new NRPA is generated every time you start advertising.</li>
+</ul>
+<h4 id="set-nrpa-explicitly">Set NRPA explicitly:</h4>
+<pre><code class="language-c">static const struct bt_le_adv_param *adv_param = BT_LE_ADV_PARAM(
+    BT_LE_ADV_OPT_USE_NRPA,
+    160, 160, NULL);
+</code></pre>
+<hr />
+<h2 id="connection-callbacks">Connection Callbacks</h2>
+<p>To handle Bluetooth connections in Zephyr, we use the <code>bt_conn_cb</code> structure. This lets us register callback functions to track connection events like when a device connects or disconnects.</p>
+<p>First, include the necessary header:</p>
+<pre><code class="language-c">#include &lt;zephyr/bluetooth/conn.h&gt;
+</code></pre>
+<p>Then, declare a connection reference to track the active connection:</p>
+<pre><code class="language-c">static struct bt_conn *my_conn = NULL;
+</code></pre>
+<h3 id="basic-callbacks">Basic Callbacks</h3>
+<pre><code class="language-c">void on_connected(struct bt_conn *conn, uint8_t err)
+{
+    if (err) {
+        LOG_ERR(&quot;Connection failed (err %u)&quot;, err);
+        return;
+    }
+
+    my_conn = bt_conn_ref(conn);
+}
+
+void on_disconnected(struct bt_conn *conn, uint8_t reason)
+{
+    LOG_INF(&quot;Disconnected (reason 0x%02x)&quot;, reason);
+
+    if (my_conn) {
+        bt_conn_unref(my_conn);
+        my_conn = NULL;
+    }
+}
+</code></pre>
+<ul>
+<li><code>bt_conn_ref()</code> increases the reference count so the connection stays valid.</li>
+<li><code>bt_conn_unref()</code> is called on disconnection to release the reference.</li>
+<li><code>bt_conn_get_dst()</code> gets the peer device’s address.</li>
+</ul>
+<h3 id="registering-callbacks">Registering Callbacks</h3>
+<pre><code class="language-c">static struct bt_conn_cb connection_callbacks = {
+    .connected = on_connected,
+    .disconnected = on_disconnected,
+};
+
+bt_conn_cb_register(&amp;connection_callbacks);
+</code></pre>
+<p>You must register your callback structure before or after enabling Bluetooth, and <strong>before</strong> expecting any connection events.</p>
+<h3 id="other-available-callbacks-in-bt_conn_cb">Other Available Callbacks in <code>bt_conn_cb</code></h3>
+<p>You can optionally implement more callbacks:</p>
+<ul>
+<li><code>recycled</code>: Called when a connection object is returned to the pool.</li>
+<li><code>le_param_req</code>: Called when the peer requests to update connection parameters. Return <code>true</code> to accept or <code>false</code> to reject.</li>
+<li><code>le_param_updated</code>: Notifies when connection parameters are updated (interval, latency, timeout).</li>
+<li><code>identity_resolved</code>: (If SMP enabled) Notifies when a peer's identity address is resolved from an RPA.</li>
+<li><code>security_changed</code>: (If SMP or Classic enabled) Called when connection security changes.</li>
+<li><code>remote_info_available</code>: Called when info about the peer (features, roles) is available.</li>
+<li><code>le_phy_updated</code>: Notifies when PHY is changed (1M, 2M, coded).</li>
+<li><code>le_data_len_updated</code>: Called when the maximum payload size changes.</li>
+<li><code>tx_power_report</code>: Reports transmit power changes.</li>
+<li><code>subrate_changed</code>: Called when connection subrate settings change.</li>
+</ul>
+<p>These are mostly optional and only needed for advanced use cases.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../02-ble-advertising-simple/" class="btn btn-neutral float-left" title="BLE-Advertising Simple"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../02-ble-advertising-simple/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
