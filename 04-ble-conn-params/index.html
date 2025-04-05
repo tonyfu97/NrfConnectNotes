@@ -189,6 +189,9 @@ CONFIG_BT_GAP_AUTO_UPDATE_CONN_PARAMS=y
 <li><strong>Coded PHY</strong>: Increases range using redundancy, but at a lower data rate (125 kbps or 500 kbps).</li>
 </ul>
 <h3 id="in-action_1">In Action</h3>
+<p>First, we need to enable the PHY feature in the <code>prj.conf</code> file:</p>
+<pre><code class="language-Kconfig">CONFIG_BT_USER_PHY_UPDATE=y
+</code></pre>
 <p>We can set the PHY mode again in the on_connect callback:</p>
 <pre><code class="language-c">static void on_conn_established(struct bt_conn *conn, uint8_t err)
 {
@@ -246,6 +249,9 @@ CONFIG_BT_GAP_AUTO_UPDATE_CONN_PARAMS=y
 <li>Even with a large MTU, if the data length is low, data is split into multiple packets.</li>
 </ul>
 <h3 id="in-action_2">In Action</h3>
+<p>First we need to enable the data length extension feature in the <code>prj.conf</code> file:</p>
+<pre><code class="language-Kconfig">CONFIG_BT_USER_DATA_LEN_UPDATE=y
+</code></pre>
 <p>Again, we can set the data length and MTU in the on_connect callback:</p>
 <pre><code class="language-c">static void mtu_exchange_cb(struct bt_conn *conn, uint8_t err, struct bt_gatt_exchange_params *params)
 {
