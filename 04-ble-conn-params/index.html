@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/04-ble-conn-params/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>BLE-Connection Parameters - nRF Connect SDK Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "BLE-Connection Parameters";
+        var mkdocs_page_input_path = "04-ble-conn-params.md";
+        var mkdocs_page_url = "/NrfConnectNotes/04-ble-conn-params/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/django.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', "G-274394082");
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> nRF Connect SDK Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../01-ble-minimal-skeleton/">BLE-Minimal Skeleton</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../02-ble-advertising-simple/">BLE-Advertising Simple</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../03-ble-advert-connectable/">BLE-Advertising Connectable</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">BLE-Connection Parameters</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#core-connection-parameters">Core Connection Parameters</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-connection-interval">1. Connection Interval</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-supervision-timeout">2. Supervision Timeout</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-peripheral-latency">3. Peripheral Latency</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#in-action">In Action</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#phy-radio-modes">PHY Radio Modes</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#in-action_1">In Action</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#data-length-vs-mtu">Data Length vs MTU</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#4-mtu-maximum-transmission-unit">4. MTU (Maximum Transmission Unit)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#5-data-length">5. Data Length</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#in-action_2">In Action</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">nRF Connect SDK Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">BLE-Connection Parameters</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/04-ble-conn-params.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="04-ble-connection-parameters">04 - BLE Connection Parameters</h1>
+<h2 id="core-connection-parameters">Core Connection Parameters</h2>
+<p>These parameters were part of the <strong>original Bluetooth LE specification</strong>, and are exchanged during connection establishment. They define the timing and reliability of the connection.</p>
+<h3 id="1-connection-interval">1. Connection Interval</h3>
+<ul>
+<li>Time between consecutive connection events (when devices wake up to communicate).</li>
+<li><strong>Typical range:</strong> 7.5 ms to 4 s, in steps of 1.25 ms.</li>
+<li>Lower values = lower latency, higher power use.  </li>
+<li>Higher values = longer sleep time, lower power use.</li>
+</ul>
+<h3 id="2-supervision-timeout">2. Supervision Timeout</h3>
+<ul>
+<li>Max time allowed without successful packet reception before the connection is considered lost.</li>
+<li><strong>Typical range:</strong> 100 ms to 32 s, in steps of 10 ms.</li>
+<li>Must be &gt; (1 + peripheral latency) × connection interval × 2.</li>
+</ul>
+<h3 id="3-peripheral-latency">3. Peripheral Latency</h3>
+<ul>
+<li>Number of connection events the peripheral can skip if it has nothing to send.</li>
+<li><strong>Typical values:</strong> 0–499 (unitless).</li>
+<li>Allows the peripheral to save power while remaining in the connection.</li>
+<li><strong>Note:</strong> The name is misleading — this is <strong>not a time duration</strong>, but a <strong>count</strong> of skipped events.</li>
+</ul>
+<h3 id="in-action">In Action</h3>
+<p>In the on_connect callback, we can print the 3 connection parameters:</p>
+<pre><code class="language-c">static void on_conn_established(struct bt_conn *conn, uint8_t err)
+{
+    // ... other code
+    active_conn = bt_conn_ref(conn);
+
+    struct bt_conn_info info;
+    if (bt_conn_get_info(conn, &amp;info) == 0) {
+        double int_ms = info.le.interval * 1.25;
+        uint16_t timeout_ms = info.le.timeout * 10;
+        LOG_INF(&quot;Initial conn params: %.2f ms, latency %u, timeout %u ms&quot;, int_ms, info.le.latency, timeout_ms);
+    }
+    // ... other code
+}
+</code></pre>
+<blockquote>
+<p><strong>Note:</strong> Floating point math is not enabled by default, so we need to add <code>CONFIG_FPU=y</code> to the <code>prj.conf</code> file.</p>
+</blockquote>
+<p>Those parameters are typically first determined by the central device, and then the peripheral can request changes. To define our (i.e., the peripheral's) connection parameters, we can override the default values in the <code>prj.conf</code> file:</p>
+<pre><code class="language-Kconfig"># Set preferred connection parameters (units: 1.25ms for interval, 10ms for timeout)
+CONFIG_BT_PERIPHERAL_PREF_MIN_INT=320
+CONFIG_BT_PERIPHERAL_PREF_MAX_INT=400
+CONFIG_BT_PERIPHERAL_PREF_LATENCY=3
+CONFIG_BT_PERIPHERAL_PREF_TIMEOUT=500
+CONFIG_BT_GAP_AUTO_UPDATE_CONN_PARAMS=y
+</code></pre>
+<p>The last line may be redundant, as it is enabled by default. It allows the peripheral to request a change in connection parameters after the initial connection. To get notified of the new parameters, we can implement the <code>on_conn_param_update</code> callback:</p>
+<pre><code class="language-c">static void handle_conn_param_change(struct bt_conn *conn, uint16_t interval, uint16_t latency, uint16_t timeout)
+{
+    double interval_ms = interval * 1.25;
+    uint16_t timeout_ms = timeout * 10;
+    LOG_INF(&quot;Params changed: %.2f ms, latency %u, timeout %u ms&quot;, interval_ms, latency, timeout_ms);
+}
+</code></pre>
+<hr />
+<h2 id="phy-radio-modes">PHY Radio Modes</h2>
+<ul>
+<li>The default mode is <strong>1M PHY</strong> (1 Mbps), which is used for compatibility.</li>
+<li><strong>2M PHY</strong> (2 Mbps): Doubles throughput, reduces time on air, but may shorten range.</li>
+<li><strong>Coded PHY</strong>: Increases range using redundancy, but at a lower data rate (125 kbps or 500 kbps).</li>
+</ul>
+<h3 id="in-action_1">In Action</h3>
+<p>We can set the PHY mode again in the on_connect callback:</p>
+<pre><code class="language-c">static void on_conn_established(struct bt_conn *conn, uint8_t err)
+{
+    // ... other code
+    const struct bt_conn_le_phy_param phy_pref = {
+        .options = BT_CONN_LE_PHY_OPT_NONE,
+        .pref_rx_phy = BT_GAP_LE_PHY_2M,
+        .pref_tx_phy = BT_GAP_LE_PHY_2M,
+    };
+
+    int err = bt_conn_le_phy_update(conn, &amp;phy_pref);
+    if (err) {
+        LOG_ERR(&quot;PHY update failed (%d)&quot;, err);
+    }
+    // ... other code
+}
+</code></pre>
+<p>To get notified of the PHY change, we can implement the <code>on_phy_update</code> callback:</p>
+<pre><code class="language-c">static void handle_phy_change(struct bt_conn *conn, struct bt_conn_le_phy_info *info)
+{
+    switch (info-&gt;tx_phy) {
+    case BT_CONN_LE_TX_POWER_PHY_1M:
+        LOG_INF(&quot;PHY switched to 1M&quot;);
+        break;
+    case BT_CONN_LE_TX_POWER_PHY_2M:
+        LOG_INF(&quot;PHY switched to 2M&quot;);
+        break;
+    case BT_CONN_LE_TX_POWER_PHY_CODED_S8:
+        LOG_INF(&quot;PHY switched to Long Range&quot;);
+        break;
+    default:
+        LOG_INF(&quot;PHY changed to unknown mode&quot;);
+        break;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="data-length-vs-mtu">Data Length vs MTU</h2>
+<p>To understand how these differ, it's helpful to recall the <strong>Bluetooth LE stack layers</strong>:
+- <strong>GATT</strong> (Generic Attribute Profile) sits at the top — this is where most application developers work.
+- Beneath that, <strong>L2CAP</strong> segments and reassembles data.
+- At the base, <strong>the Link Layer</strong> is responsible for actual over-the-air packets.</p>
+<h3 id="4-mtu-maximum-transmission-unit">4. MTU (Maximum Transmission Unit)</h3>
+<ul>
+<li>Max number of bytes in a single <strong>GATT operation</strong> (e.g., read/write).</li>
+<li><strong>Default:</strong> 23 bytes.</li>
+<li>Can be increased via <strong>MTU exchange</strong> after connection.</li>
+<li>Operates at the <strong>GATT/L2CAP level</strong>.</li>
+</ul>
+<h3 id="5-data-length">5. Data Length</h3>
+<ul>
+<li>Max number of bytes that can be sent in a single <strong>Link Layer PDU</strong> (packet).</li>
+<li><strong>Default:</strong> 27 bytes. Can be increased up to <strong>251 bytes</strong> (BLE 4.2+).</li>
+<li>Negotiated via <strong>Data Length Extension (DLE)</strong>.</li>
+<li>Even with a large MTU, if the data length is low, data is split into multiple packets.</li>
+</ul>
+<h3 id="in-action_2">In Action</h3>
+<p>Again, we can set the data length and MTU in the on_connect callback:</p>
+<pre><code class="language-c">static void mtu_exchange_cb(struct bt_conn *conn, uint8_t err, struct bt_gatt_exchange_params *params)
+{
+    if (!err) {
+        uint16_t app_mtu = bt_gatt_get_mtu(conn) - 3;
+        LOG_INF(&quot;MTU negotiated: %u bytes&quot;, app_mtu);
+    } else {
+        LOG_ERR(&quot;MTU exchange failed (ATT err %u)&quot;, err);
+    }
+}
+
+static void on_conn_established(struct bt_conn *conn, uint8_t err)
+{
+    // ... other code
+    // Update data length
+    struct bt_conn_le_data_len_param len_params = {
+        .tx_max_len = BT_GAP_DATA_LEN_MAX,
+        .tx_max_time = BT_GAP_DATA_TIME_MAX,
+    };
+
+    int err = bt_conn_le_data_len_update(conn, &amp;len_params);
+    if (err) {
+        LOG_ERR(&quot;Failed to update data length (%d)&quot;, err);
+    }
+
+    // Update MTU
+    static struct bt_gatt_exchange_params params = {
+        .func = mtu_exchange_cb
+    };
+
+    int err = bt_gatt_exchange_mtu(conn, &amp;params);
+    if (err) {
+        LOG_ERR(&quot;MTU exchange failed (%d)&quot;, err);
+    }
+    // ... other code
+}
+</code></pre>
+<p>And we can get notified of the data length change with the <code>le_data_len_updated</code> callback:</p>
+<pre><code class="language-c">static void handle_data_len_change(struct bt_conn *conn, struct bt_conn_le_data_len_info *info)
+{
+    LOG_INF(&quot;Data len: TX=%u (%uus), RX=%u (%uus)&quot;,
+        info-&gt;tx_max_len, info-&gt;tx_max_time,
+        info-&gt;rx_max_len, info-&gt;rx_max_time);
+}
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../03-ble-advert-connectable/" class="btn btn-neutral float-left" title="BLE-Advertising Connectable"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../03-ble-advert-connectable/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
