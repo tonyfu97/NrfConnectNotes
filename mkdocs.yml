@@ -23,6 +23,7 @@ nav:
     - BLE-Minimal Skeleton: 01-ble-minimal-skeleton.md
     - BLE-Advertising Simple: 02-ble-advertising-simple.md
     - BLE-Advertising Connectable: 03-ble-advert-connectable.md
+    - BLE-Connection Parameters: 04-ble-conn-params.md
 
 copyright: Copyright &copy; 2025 Tony Fu
 
