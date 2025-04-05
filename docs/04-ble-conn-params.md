@@ -72,6 +72,12 @@ static void handle_conn_param_change(struct bt_conn *conn, uint16_t interval, ui
 
 ### In Action
 
+First, we need to enable the PHY feature in the `prj.conf` file:
+
+```Kconfig
+CONFIG_BT_USER_PHY_UPDATE=y
+```
+
 We can set the PHY mode again in the on_connect callback:
 
 ```c
@@ -136,6 +142,12 @@ To understand how these differ, it's helpful to recall the **Bluetooth LE stack 
 - Even with a large MTU, if the data length is low, data is split into multiple packets.
 
 ### In Action
+
+First we need to enable the data length extension feature in the `prj.conf` file:
+
+```Kconfig
+CONFIG_BT_USER_DATA_LEN_UPDATE=y
+```
 
 Again, we can set the data length and MTU in the on_connect callback:
 
