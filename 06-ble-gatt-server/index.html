@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/06-ble-gatt-server/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>BLE-GATT Server Operations - nRF Connect SDK Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "BLE-GATT Server Operations";
+        var mkdocs_page_input_path = "06-ble-gatt-server.md";
+        var mkdocs_page_url = "/NrfConnectNotes/06-ble-gatt-server/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/django.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', "G-274394082");
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> nRF Connect SDK Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../01-ble-minimal-skeleton/">BLE-Minimal Skeleton</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../02-ble-advertising-simple/">BLE-Advertising Simple</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../03-ble-advert-connectable/">BLE-Advertising Connectable</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../04-ble-conn-params/">BLE-Connection Parameters</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../05-ble-gatt-client/">BLE-GATT Client Operations</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">BLE-GATT Server Operations</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#att-attribute-protocol">ATT (Attribute Protocol)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#common-attribute-types">Common Attribute Types</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#attribute-permissions">Attribute Permissions</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#gatt-generic-attribute-profile">GATT (Generic Attribute Profile)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-service-declaration">1. Service Declaration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-characteristic-declaration">2. Characteristic Declaration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-characteristic-value">3. Characteristic Value</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#4-descriptor-attribute-optional">4. Descriptor Attribute (optional)</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">nRF Connect SDK Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">BLE-GATT Server Operations</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/06-ble-gatt-server.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="06-ble-gatt-server-initiated-operations">06 - BLE GATT Server-Initiated Operations</h1>
+<p>Before diving into server-initiated operations like <strong>notifications</strong> and <strong>indications</strong>, it’s important to understand the layers beneath them: <strong>ATT</strong> and <strong>GATT</strong>. These layers form the foundation of BLE’s server-client communication model.</p>
+<p>We want to get comfortable with <strong>GATT</strong>, as it’s the layer most application developers interact with. But beneath GATT lies <strong>ATT</strong>, which provides the raw data transport mechanism.</p>
+<hr />
+<h2 id="att-attribute-protocol">ATT (Attribute Protocol)</h2>
+<p>ATT defines a minimal protocol for exposing data as a list of <strong>attributes</strong> on the server. Each attribute is a generic container that GATT builds upon (services, characteristics, descriptors).</p>
+<p>An ATT attribute consists of:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Size</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Handle</strong></td>
+<td>2 bytes</td>
+<td>A unique ID for the attribute on the server. Used by clients to reference it.</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>2 or 16 bytes</td>
+<td>A UUID that indicates what kind of attribute this is (e.g., service, characteristic).</td>
+</tr>
+<tr>
+<td><strong>Permission</strong></td>
+<td>—</td>
+<td>Access control: read, write, notify, etc.</td>
+</tr>
+<tr>
+<td><strong>Value</strong></td>
+<td>Variable</td>
+<td>Actual data content (e.g., the characteristic's value).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-attribute-types">Common Attribute Types</h3>
+<p>These are 16-bit <strong>standardized UUIDs</strong> defined by the Bluetooth SIG. They are used to define structure within a GATT service:</p>
+<table>
+<thead>
+<tr>
+<th>Type (UUID)</th>
+<th>Description</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x2800</code></td>
+<td>Primary Service</td>
+<td>Marks the beginning of a primary service declaration.</td>
+</tr>
+<tr>
+<td><code>0x2801</code></td>
+<td>Secondary Service</td>
+<td>Used to define a secondary (helper) service that is referenced by another.</td>
+</tr>
+<tr>
+<td><code>0x2803</code></td>
+<td>Characteristic Declaration</td>
+<td>Describes a characteristic: includes properties, handle, and UUID.</td>
+</tr>
+<tr>
+<td><code>0x2901</code></td>
+<td>Characteristic User Description</td>
+<td>Human-readable label (e.g., <code>"Heart Rate"</code>). Shown in GUIs.</td>
+</tr>
+<tr>
+<td><code>0x2902</code></td>
+<td>Client Characteristic Configuration (CCCD)</td>
+<td>Lets clients enable notifications or indications for a characteristic.</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>GATT uses these generic ATT attributes to structure and organize the data.</li>
+<li>The type of a characteristic is defined by its UUID, which can be a 16-bit or 128-bit value.</li>
+</ul>
+<h3 id="attribute-permissions">Attribute Permissions</h3>
+<p>Each attribute has a <strong>set of permissions</strong> that control how clients are allowed to interact with it — such as whether it can be read, written, or requires a secure connection.</p>
+<p>These permissions are enforced by the <strong>ATT server</strong>, regardless of what the characteristic <em>claims</em> to support (via its properties). Here's a mapping of common permissions:</p>
+<table>
+<thead>
+<tr>
+<th>Permission</th>
+<th>Description</th>
+<th>Zephyr Macro</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Plain Read</strong></td>
+<td>Client can read the attribute value.</td>
+<td><code>BT_GATT_PERM_READ</code></td>
+</tr>
+<tr>
+<td><strong>Plain Write</strong></td>
+<td>Client can write a new value.</td>
+<td><code>BT_GATT_PERM_WRITE</code></td>
+</tr>
+<tr>
+<td><strong>Encrypted Read</strong></td>
+<td>Read only allowed over an encrypted connection.</td>
+<td><code>BT_GATT_PERM_READ_ENCRYPT</code></td>
+</tr>
+<tr>
+<td><strong>Encrypted Write</strong></td>
+<td>Write only allowed over an encrypted connection.</td>
+<td><code>BT_GATT_PERM_WRITE_ENCRYPT</code></td>
+</tr>
+<tr>
+<td><strong>Authenticated Read</strong></td>
+<td>Read allowed only after authentication (e.g., MITM pairing).</td>
+<td><code>BT_GATT_PERM_READ_AUTHEN</code></td>
+</tr>
+<tr>
+<td><strong>Authenticated Write</strong></td>
+<td>Write allowed only after authentication (e.g., MITM pairing).</td>
+<td><code>BT_GATT_PERM_WRITE_AUTHEN</code></td>
+</tr>
+<tr>
+<td><strong>LESC Read</strong></td>
+<td>Read requires LE Secure Connections.</td>
+<td><code>BT_GATT_PERM_READ_LESC</code></td>
+</tr>
+<tr>
+<td><strong>LESC Write</strong></td>
+<td>Write requires LE Secure Connections.</td>
+<td><code>BT_GATT_PERM_WRITE_LESC</code></td>
+</tr>
+<tr>
+<td><strong>Prepare Write</strong></td>
+<td>Attribute supports queued writes (long/atomic writes).</td>
+<td><code>BT_GATT_PERM_PREPARE_WRITE</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>🔐 When no appropriate permissions are granted (e.g., no <code>BT_GATT_PERM_READ</code>), the server will reject the client’s operation with an ATT error like <code>Read Not Permitted</code>.</p>
+</blockquote>
+<p>This permission layer acts independently from characteristic <strong>properties</strong>, which simply advertise what <em>can</em> be done — permissions control what is actually <em>allowed</em> at runtime.</p>
+<p>Also, here is a quick note on the different security levels (will be covered in more detail later):</p>
+<ul>
+<li><strong>Encrypted</strong> access means the connection must be encrypted (e.g., after pairing). This protects data from passive eavesdropping.</li>
+<li><strong>Authenticated</strong> access goes a step further — the connection must be encrypted <em>and</em> use an authenticated key (typically generated with MITM protection, like passkey entry). This defends against impersonation attacks.</li>
+<li><strong>LESC (LE Secure Connections)</strong> is a newer pairing method introduced in Bluetooth 4.2. It uses Elliptic Curve Diffie-Hellman (ECDH) for key exchange and offers stronger protection against passive and active attacks compared to older methods.</li>
+</ul>
+<hr />
+<h2 id="gatt-generic-attribute-profile">GATT (Generic Attribute Profile)</h2>
+<p>The <strong>Generic Attribute Profile (GATT)</strong> defines how the low-level attributes defined by the <strong>ATT protocol</strong> are grouped and interpreted to represent meaningful data. While <strong>ATT</strong> is concerned purely with the format and transport of attributes (each with a handle, type, permissions, and value), <strong>GATT</strong> gives structure to those attributes by organizing them into logical groupings like <strong>services</strong>, <strong>characteristics</strong>, and <strong>descriptors</strong>.</p>
+<p>At its core, GATT uses multiple ATT attributes to represent each component:</p>
+<ul>
+<li>A <strong>Service</strong> is a collection of related characteristics (e.g., the Heart Rate Service).</li>
+<li>A <strong>Characteristic</strong> represents a data item (e.g., current heart rate) and is made up of three attributes: a <strong>declaration</strong>, a <strong>value</strong>, and optional <strong>descriptors</strong>.</li>
+<li>A <strong>Descriptor</strong> is additional metadata about a characteristic, such as a human-readable label or client configuration (e.g., enabling notifications).</li>
+</ul>
+<p>Each attribute is given a handle, type, permssions, and value. Handles are assgined by the server and can vary between different BLE stacks, but it is worth discussing the other three fields in more detail:</p>
+<h3 id="1-service-declaration">1. <strong>Service Declaration</strong></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Permission</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x2800</code> (Primary) or <code>0x2801</code> (Secondary)</td>
+<td>Read</td>
+<td>UUID of the service (e.g., <code>0x180F</code> for Battery Service)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-characteristic-declaration">2. <strong>Characteristic Declaration</strong></h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Permission</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x2803</code> (Characteristic Declaration)</td>
+<td><code>Read</code></td>
+<td>- <strong>Properties</strong> (1 byte): Bitfield indicating allowed operations (e.g., Read, Write, Notify).<br>- <strong>Value Handle</strong> (2 bytes): Handle pointing to the <strong>Characteristic Value</strong> attribute.<br>- <strong>Characteristic UUID</strong> (2 or 16 bytes): UUID of the characteristic.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-characteristic-value">3. <strong>Characteristic Value</strong></h3>
+<table>
+<thead>
+<tr>
+<th>Type (UUID of Characteristic)</th>
+<th>Permission</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The UUID of the characteristic (e.g., <code>0x2A19</code> for Battery Level)</td>
+<td>Depends on characteristic (e.g., Read, Write, Notify)</td>
+<td>Raw data (e.g., sensor reading, config byte). This is the actual <strong>payload</strong> a client interacts with.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-descriptor-attribute-optional">4. <strong>Descriptor Attribute</strong> (optional)</h3>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Permission</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>e.g., <code>0x2901</code> (User Description), <code>0x2902</code> (CCCD)</td>
+<td>Depends on descriptor:<br>- <code>0x2901</code>: Read<br>- <code>0x2902</code>: Read/Write</td>
+<td>- <strong>User Description (0x2901)</strong>: Human-readable name of the characteristic (e.g., "Temperature").<br>- <strong>CCCD (0x2902)</strong>: 2-byte bitfield that enables notifications and/or indications.<br>- Others: May define triggers, ranges, or valid formats.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../05-ble-gatt-client/" class="btn btn-neutral float-left" title="BLE-GATT Client Operations"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../05-ble-gatt-client/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
