@@ -24,6 +24,7 @@ nav:
     - BLE-Advertising Simple: 02-ble-advertising-simple.md
     - BLE-Advertising Connectable: 03-ble-advert-connectable.md
     - BLE-Connection Parameters: 04-ble-conn-params.md
+    - BLE-GATT Client Operations: 05-ble-gatt-client.md
 
 copyright: Copyright &copy; 2025 Tony Fu
 
