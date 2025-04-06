@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/05-ble-gatt-client/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>BLE-GATT Client Operations - nRF Connect SDK Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "BLE-GATT Client Operations";
+        var mkdocs_page_input_path = "05-ble-gatt-client.md";
+        var mkdocs_page_url = "/NrfConnectNotes/05-ble-gatt-client/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/django.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', "G-274394082");
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> nRF Connect SDK Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../01-ble-minimal-skeleton/">BLE-Minimal Skeleton</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../02-ble-advertising-simple/">BLE-Advertising Simple</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../03-ble-advert-connectable/">BLE-Advertising Connectable</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../04-ble-conn-params/">BLE-Connection Parameters</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">BLE-GATT Client Operations</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#1-create-a-file-my_serviceh">1. Create a File: my_service.h</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#2-encode-the-uuids-using-bt_uuid_128_encode">2. Encode the UUIDs Using BT_UUID_128_ENCODE</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#parameters">Parameters:</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example:</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#3-declare-the-uuids">3. Declare the UUIDs</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#4-create-a-file-my_servicec">4. Create a File: my_service.c</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#5-implement-the-read-callback">5. Implement the Read Callback</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#6-implement-the-write-callback">6. Implement the Write Callback</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#7-define-a-callback-struct-and-init-function">7. Define a Callback Struct and Init Function</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#8-define-the-gatt-service">8. Define the GATT Service</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#9-use-the-service-in-mainc">9. Use the Service in main.c</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">nRF Connect SDK Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">BLE-GATT Client Operations</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/05-ble-gatt-client.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="05-ble-gatt-client-initiated-operations">05 - BLE GATT Client-Initiated Operations</h1>
+<p>In the GATT protocol, the <strong>server</strong> holds the data. The <strong>client</strong> can request the server to perform operations such as <strong>read</strong>, <strong>write</strong>, or <strong>write without response</strong> — these are known as <em>client-initiated operations</em>. Alternatively, the client can <em>subscribe</em> to <strong>notifications</strong> or <strong>indications</strong>, which are <em>server-initiated operations</em>.</p>
+<p>This note focuses on <strong>client-initiated operations</strong>. The server-side implementation will be covered in a later note. We will walk through how to define a custom 128-bit UUID GATT service with both readable and writable characteristics in Zephyr, using the Nordic SDK style.</p>
+<hr />
+<h2 id="1-create-a-file-my_serviceh">1. Create a File: <code>my_service.h</code></h2>
+<p>This header will define the UUIDs, callback types, and initialization function needed for the custom service.</p>
+<hr />
+<h2 id="2-encode-the-uuids-using-bt_uuid_128_encode">2. Encode the UUIDs Using <code>BT_UUID_128_ENCODE</code></h2>
+<p>Zephyr provides a helper macro to define a 128-bit UUID:</p>
+<pre><code class="language-c">BT_UUID_128_ENCODE(w32, w1, w2, w3, w48)
+</code></pre>
+<p>This macro converts your UUID into little-endian byte order suitable for Zephyr’s internal structures. It's commonly used when defining:
+- Service UUIDs
+- Characteristic UUIDs
+- Advertising UUIDs</p>
+<h3 id="parameters">Parameters:</h3>
+<table>
+<thead>
+<tr>
+<th>Param</th>
+<th>Size</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>w32</td>
+<td>32b</td>
+<td>First field of the UUID</td>
+</tr>
+<tr>
+<td>w1</td>
+<td>16b</td>
+<td>Second field</td>
+</tr>
+<tr>
+<td>w2</td>
+<td>16b</td>
+<td>Third field</td>
+</tr>
+<tr>
+<td>w3</td>
+<td>16b</td>
+<td>Fourth field</td>
+</tr>
+<tr>
+<td>w48</td>
+<td>48b</td>
+<td>Final field (usually vendor part)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Just take your UUID, replace the dashes with commas, and prefix each value with <code>0x</code>.</p>
+</blockquote>
+<h3 id="example">Example:</h3>
+<p>If your 128-bit UUID is:</p>
+<pre><code>12345678-9abc-def0-1234-56789abcdef0
+</code></pre>
+<p>You can encode it like:</p>
+<pre><code class="language-c">#define BT_UUID_MY_SERVICE_VAL \
+    BT_UUID_128_ENCODE(0x12345678, 0x9abc, 0xdef0, 0x1234, 0x56789abcdef0)
+</code></pre>
+<p>And then define characteristics with similar base UUIDs:</p>
+<pre><code class="language-c">#define BT_UUID_MY_CHAR_READ_VAL \
+    BT_UUID_128_ENCODE(0x12345678, 0x9abc, 0xdef0, 0x1234, 0x56789abcdef1)
+
+#define BT_UUID_MY_CHAR_WRITE_VAL \
+    BT_UUID_128_ENCODE(0x12345678, 0x9abc, 0xdef0, 0x1234, 0x56789abcdef2)
+</code></pre>
+<blockquote>
+<p>💡 <strong>Naming convention (rule of thumb):</strong>
+- The first few fields can vary by purpose (e.g., 1 service, multiple characteristics).
+- The final 48 bits are often treated as the vendor-defined base.
+- No strict rules — just make sure they’re unique.</p>
+</blockquote>
+<hr />
+<h2 id="3-declare-the-uuids">3. Declare the UUIDs</h2>
+<p>Encoding a UUID gives you a byte array. To use them in APIs like <code>BT_GATT_PRIMARY_SERVICE()</code> or <code>BT_GATT_CHARACTERISTIC()</code>, you must wrap them with <code>BT_UUID_DECLARE_128()</code>:</p>
+<pre><code class="language-c">#define BT_UUID_MY_SERVICE     BT_UUID_DECLARE_128(BT_UUID_MY_SERVICE_VAL)
+#define BT_UUID_MY_CHAR_READ   BT_UUID_DECLARE_128(BT_UUID_MY_CHAR_READ_VAL)
+#define BT_UUID_MY_CHAR_WRITE  BT_UUID_DECLARE_128(BT_UUID_MY_CHAR_WRITE_VAL)
+</code></pre>
+<p>This declares each UUID as a <code>const struct bt_uuid *</code> that can be used with Zephyr’s GATT API.</p>
+<hr />
+<h2 id="4-create-a-file-my_servicec">4. Create a File: <code>my_service.c</code></h2>
+<p>This file implements the callbacks, the internal state, and defines the GATT service.</p>
+<hr />
+<h2 id="5-implement-the-read-callback">5. Implement the Read Callback</h2>
+<p>Include the needed headers:</p>
+<pre><code class="language-c">#include &lt;zephyr/bluetooth/bluetooth.h&gt;
+#include &lt;zephyr/bluetooth/gatt.h&gt;
+</code></pre>
+<p>Implement the read callback:</p>
+<pre><code class="language-c">static uint8_t stored_value;
+
+static ssize_t on_read(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+                       void *buf, uint16_t len, uint16_t offset)
+{
+    LOG_INF(&quot;Read request received&quot;);
+    return bt_gatt_attr_read(conn, attr, buf, len, offset, &amp;stored_value, sizeof(stored_value));
+}
+</code></pre>
+<blockquote>
+<p><code>bt_gatt_attr_read()</code> is a helper that reads from a memory buffer and does bounds checking for you.</p>
+</blockquote>
+<hr />
+<h2 id="6-implement-the-write-callback">6. Implement the Write Callback</h2>
+<pre><code class="language-c">static struct my_service_cb service_cb;
+
+static ssize_t on_write(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+                        const void *buf, uint16_t len, uint16_t offset, uint8_t flags)
+{
+    if (offset != 0 || len != 1) {
+        return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+    }
+
+    uint8_t val = *((uint8_t *)buf);
+    stored_value = val;
+
+    LOG_INF(&quot;New value written: %d&quot;, stored_value);
+
+    if (service_cb.on_write) {
+        service_cb.on_write(val);
+    }
+
+    return len;
+}
+</code></pre>
+<blockquote>
+<p>You can choose to act immediately on the written value, or store it for later use.</p>
+</blockquote>
+<hr />
+<h2 id="7-define-a-callback-struct-and-init-function">7. Define a Callback Struct and Init Function</h2>
+<p>Define the callback type and storage:</p>
+<pre><code class="language-c">typedef void (*my_write_cb_t)(uint8_t new_value);
+
+struct my_service_cb {
+    my_write_cb_t on_write;
+};
+</code></pre>
+<p>Then implement a simple init function:</p>
+<pre><code class="language-c">int my_service_init(struct my_service_cb *cb)
+{
+    if (cb) {
+        service_cb = *cb;
+    }
+    LOG_INF(&quot;Custom service initialized&quot;);
+    return 0;
+}
+</code></pre>
+<p>This lets users register custom application logic on writes.</p>
+<hr />
+<h2 id="8-define-the-gatt-service">8. Define the GATT Service</h2>
+<p>Declare your service and characteristics using <code>BT_GATT_SERVICE_DEFINE</code>:</p>
+<pre><code class="language-c">BT_GATT_SERVICE_DEFINE(my_svc,
+    BT_GATT_PRIMARY_SERVICE(BT_UUID_MY_SERVICE),
+
+    BT_GATT_CHARACTERISTIC(BT_UUID_MY_CHAR_READ,
+                           BT_GATT_CHRC_READ,
+                           BT_GATT_PERM_READ,
+                           on_read, NULL, &amp;stored_value),
+
+    BT_GATT_CHARACTERISTIC(BT_UUID_MY_CHAR_WRITE,
+                           BT_GATT_CHRC_WRITE,
+                           BT_GATT_PERM_WRITE,
+                           NULL, on_write, NULL)
+);
+</code></pre>
+<hr />
+<h2 id="9-use-the-service-in-mainc">9. Use the Service in <code>main.c</code></h2>
+<p>Register your service in <code>main()</code>:</p>
+<pre><code class="language-c">#include &quot;my_service.h&quot;
+
+void my_write_handler(uint8_t value)
+{
+    LOG_INF(&quot;Value changed by client to %d&quot;, value);
+}
+
+void main(void)
+{
+    bt_enable(NULL);
+
+    struct my_service_cb cb = {
+        .on_write = my_write_handler,
+    };
+
+    my_service_init(&amp;cb);
+
+    bt_le_adv_start(BT_LE_ADV_CONN, ad, ARRAY_SIZE(ad), sd, ARRAY_SIZE(sd));
+}
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../04-ble-conn-params/" class="btn btn-neutral float-left" title="BLE-Connection Parameters"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../04-ble-conn-params/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
