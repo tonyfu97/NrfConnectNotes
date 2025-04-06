@@ -88,11 +88,13 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#data-length-vs-mtu">Data Length vs MTU</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#4-mtu-maximum-transmission-unit">4. MTU (Maximum Transmission Unit)</a>
+    <li class="toctree-l3"><a class="reference internal" href="#mtu-maximum-transmission-unit">MTU (Maximum Transmission Unit)</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#5-data-length">5. Data Length</a>
+    <li class="toctree-l3"><a class="reference internal" href="#data-length">Data Length</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#in-action_2">In Action</a>
+    <li class="toctree-l3"><a class="reference internal" href="#negotiating-mtu-and-data-length-in-code">Negotiating MTU and Data Length in Code</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#result-callback-confirms-what-was-accepted">Result: Callback confirms what was accepted</a>
     </li>
         </ul>
     </li>
@@ -231,65 +233,86 @@ CONFIG_BT_GAP_AUTO_UPDATE_CONN_PARAMS=y
 <hr />
 <h2 id="data-length-vs-mtu">Data Length vs MTU</h2>
 <p>To understand how these differ, it's helpful to recall the <strong>Bluetooth LE stack layers</strong>:
-- <strong>GATT</strong> (Generic Attribute Profile) sits at the top — this is where most application developers work.
-- Beneath that, <strong>L2CAP</strong> segments and reassembles data.
-- At the base, <strong>the Link Layer</strong> is responsible for actual over-the-air packets.</p>
-<h3 id="4-mtu-maximum-transmission-unit">4. MTU (Maximum Transmission Unit)</h3>
+- <strong>GATT</strong> (Generic Attribute Profile): Application layer. You usually interact here.
+- <strong>L2CAP</strong>: Handles segmentation and reassembly of packets.
+- <strong>Link Layer</strong>: The lowest level; handles actual radio transmission.</p>
+<h3 id="mtu-maximum-transmission-unit">MTU (Maximum Transmission Unit)</h3>
 <ul>
-<li>Max number of bytes in a single <strong>GATT operation</strong> (e.g., read/write).</li>
+<li>Maximum size of a single <strong>GATT operation</strong> (covered in next page).</li>
 <li><strong>Default:</strong> 23 bytes.</li>
-<li>Can be increased via <strong>MTU exchange</strong> after connection.</li>
-<li>Operates at the <strong>GATT/L2CAP level</strong>.</li>
+<li>Can be increased <strong>after connection</strong> using <strong>MTU Exchange</strong>.</li>
+<li>Operates at the <strong>GATT / L2CAP level</strong>.</li>
+<li>You configure the maximum value with:</li>
 </ul>
-<h3 id="5-data-length">5. Data Length</h3>
+<p><code>Kconfig
+  CONFIG_BT_L2CAP_TX_MTU=247</code></p>
+<h3 id="data-length">Data Length</h3>
 <ul>
-<li>Max number of bytes that can be sent in a single <strong>Link Layer PDU</strong> (packet).</li>
-<li><strong>Default:</strong> 27 bytes. Can be increased up to <strong>251 bytes</strong> (BLE 4.2+).</li>
-<li>Negotiated via <strong>Data Length Extension (DLE)</strong>.</li>
-<li>Even with a large MTU, if the data length is low, data is split into multiple packets.</li>
+<li>Maximum size of a single <strong>Link Layer PDU</strong> (packet).</li>
+<li><strong>Default:</strong> 27 bytes. With BLE 4.2+, it can go up to <strong>251 bytes</strong>.</li>
+<li>Controlled via <strong>Data Length Extension (DLE)</strong>.</li>
+<li>
+<p>Even with a high MTU, a small data length will result in <strong>packet fragmentation</strong>.</p>
+</li>
+<li>
+<p>Configure this with:</p>
+</li>
 </ul>
-<h3 id="in-action_2">In Action</h3>
-<p>First we need to enable the data length extension feature in the <code>prj.conf</code> file:</p>
+<p><code>Kconfig
+  CONFIG_BT_CTLR_DATA_LENGTH_MAX=251
+  CONFIG_BT_BUF_ACL_TX_SIZE=251
+  CONFIG_BT_BUF_ACL_RX_SIZE=251</code></p>
+<h3 id="negotiating-mtu-and-data-length-in-code">Negotiating MTU and Data Length in Code</h3>
+<p>Make sure data length updates are enabled:</p>
 <pre><code class="language-Kconfig">CONFIG_BT_USER_DATA_LEN_UPDATE=y
 </code></pre>
-<p>Again, we can set the data length and MTU in the on_connect callback:</p>
+<p>Then, in your <code>on_connected()</code> callback:</p>
+<pre><code class="language-c">// Request a data length update (TX only)
+struct bt_conn_le_data_len_param len_params = {
+    .tx_max_len = BT_GAP_DATA_LEN_MAX,   // Usually 251
+    .tx_max_time = BT_GAP_DATA_TIME_MAX, // Usually 0x4290 (17040 µs)
+};
+
+int err = bt_conn_le_data_len_update(conn, &amp;len_params);
+if (err) {
+    LOG_ERR(&quot;Failed to update data length (%d)&quot;, err);
+}
+</code></pre>
+<blockquote>
+<p><strong>Why only TX?</strong><br />
+Because you can only propose values for <strong>your side</strong> of the connection.<br />
+The peer will reply with what it supports for both TX and RX. The callback later gives you the final values for both ends.</p>
+</blockquote>
+<p>To negotiate the MTU:</p>
+<pre><code class="language-c">// Start MTU exchange — no need to specify desired MTU
+static struct bt_gatt_exchange_params params = {
+    .func = mtu_exchange_cb  // Called when negotiation is done
+};
+
+err = bt_gatt_exchange_mtu(conn, &amp;params);
+if (err) {
+    LOG_ERR(&quot;MTU exchange failed (%d)&quot;, err);
+}
+</code></pre>
+<blockquote>
+<p>📝 <strong>Why don't we set a value in <code>params</code>?</strong><br />
+You don’t pass the MTU manually. The stack reads <code>CONFIG_BT_L2CAP_TX_MTU</code> and automatically includes that in the <code>ATT_Exchange_MTU_Request</code>.<br />
+The negotiated MTU is then:
+<code>c
+min(our_mtu, peer_mtu)</code></p>
+</blockquote>
+<p>The callback:</p>
 <pre><code class="language-c">static void mtu_exchange_cb(struct bt_conn *conn, uint8_t err, struct bt_gatt_exchange_params *params)
 {
     if (!err) {
-        uint16_t app_mtu = bt_gatt_get_mtu(conn) - 3;
+        uint16_t app_mtu = bt_gatt_get_mtu(conn) - 3; // 3 bytes = ATT header
         LOG_INF(&quot;MTU negotiated: %u bytes&quot;, app_mtu);
     } else {
         LOG_ERR(&quot;MTU exchange failed (ATT err %u)&quot;, err);
     }
 }
-
-static void on_conn_established(struct bt_conn *conn, uint8_t err)
-{
-    // ... other code
-    // Update data length
-    struct bt_conn_le_data_len_param len_params = {
-        .tx_max_len = BT_GAP_DATA_LEN_MAX,
-        .tx_max_time = BT_GAP_DATA_TIME_MAX,
-    };
-
-    int err = bt_conn_le_data_len_update(conn, &amp;len_params);
-    if (err) {
-        LOG_ERR(&quot;Failed to update data length (%d)&quot;, err);
-    }
-
-    // Update MTU
-    static struct bt_gatt_exchange_params params = {
-        .func = mtu_exchange_cb
-    };
-
-    int err = bt_gatt_exchange_mtu(conn, &amp;params);
-    if (err) {
-        LOG_ERR(&quot;MTU exchange failed (%d)&quot;, err);
-    }
-    // ... other code
-}
 </code></pre>
-<p>And we can get notified of the data length change with the <code>le_data_len_updated</code> callback:</p>
+<h3 id="result-callback-confirms-what-was-accepted">Result: Callback confirms what was accepted</h3>
 <pre><code class="language-c">static void handle_data_len_change(struct bt_conn *conn, struct bt_conn_le_data_len_info *info)
 {
     LOG_INF(&quot;Data len: TX=%u (%uus), RX=%u (%uus)&quot;,
@@ -297,6 +320,11 @@ static void on_conn_established(struct bt_conn *conn, uint8_t err)
         info-&gt;rx_max_len, info-&gt;rx_max_time);
 }
 </code></pre>
+<blockquote>
+<p>📝 This tells you what <strong>both</strong> sides agreed on after negotiation — your request vs. what the peer supports.<br />
+- TX: What <strong>you</strong> send<br />
+- RX: What <strong>you</strong> receive</p>
+</blockquote>
               
             </div>
           </div><footer>
