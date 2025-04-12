@@ -287,6 +287,8 @@ void on_disconnected(struct bt_conn *conn, uint8_t reason)
 - `bt_conn_unref()` is called on disconnection to release the reference.
 - `bt_conn_get_dst()` gets the peer device’s address.
 
+Although tracking `bt_conn` isn't strictly necessary in this example, it becomes important when supporting **multiple simultaneous connections**. Keeping a reference to each connection allows you to target specific peers—for example, sending data only to one device or applying per-connection security settings. Most Zephyr Bluetooth APIs accept `NULL` as the `bt_conn` argument, which simply means “send to all connected peers.” But for more advanced use cases, managing and using specific `bt_conn` pointers is essential for precise control.
+
 ### Registering Callbacks
 
 ```c
@@ -317,3 +319,19 @@ You can optionally implement more callbacks:
 - `subrate_changed`: Called when connection subrate settings change.
 
 These are mostly optional and only needed for advanced use cases.
+
+
+---
+
+
+### Connection and Disconnection Error Codes
+
+Both `on_connected()` and `on_disconnected()` callbacks report errors using **HCI error codes** defined by the Bluetooth Core Specification. These are standard codes used across the Bluetooth stack to indicate why a connection failed or was terminated.
+
+- In `on_connected()`, the `err` parameter is `0` on success, or an HCI error (e.g., `0x3E` for "Connection Failed to be Established").
+- In `on_disconnected()`, the `reason` parameter is also an HCI error code (e.g., `0x13` for "Remote User Terminated Connection").
+
+These codes help identify common issues such as timeouts, user-initiated disconnects, or parameter mismatches.
+
+You can refer to the official list of controller error codes here:  
+🔗 [Bluetooth Core Spec v5.4 – Controller Error Codes](https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-54/out/en/architecture,-mixing,-and-conventions/controller-error-codes.html)
