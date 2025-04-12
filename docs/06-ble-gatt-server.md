@@ -106,3 +106,173 @@ Each attribute is given a handle, type, permssions, and value. Handles are assgi
 ---
 
 
+## Service-Initiated Operations: Indication and Notification
+
+**Indication** and **notification** are operations used to push data from a GATT server  to a client.
+
+- **Notification** is a lightweight, unacknowledged data push. It is suitable for non-critical or frequently changing data, such as sensor streams or status updates. Notifications are fast but not guaranteed to arrive.
+
+- **Indication** is a reliable, acknowledged mechanism. Each indication must be confirmed by the client before the next can be sent. This makes it ideal for critical data or state changes that must be received.
+
+Use **notification** for speed and simplicity. Use **indication** when reliability is essential.
+
+
+---
+
+
+## In Action
+
+### Purpose of this example
+
+This example demonstrates how to create a custom GATT service with three characteristics:
+
+1. **Command characteristic** (Write): receives a control byte from a client (e.g., phone).
+2. **Critical characteristic** (Indicate): used to send important data that requires acknowledgment.
+3. **Non-critical characteristic** (Notify): used to send less important, best-effort data.
+
+The purpose is to test how a peripheral (nRF52840 dongle) can push different types of data to a central (like a phone), depending on a command it receives. Writing `0x00` triggers a notification, while any non-zero value triggers an indication.
+
+---
+
+### Steps to implement
+
+---
+
+#### Step 1. Declare UUIDs
+
+Custom 128-bit UUIDs are declared for the service and each of the three characteristics. This is just like what we have done in the previous example.
+
+```c
+#include <zephyr/types.h>
+#include <zephyr/bluetooth/uuid.h>
+
+#define BT_UUID_TEST_SERVICE_VAL BT_UUID_128_ENCODE(0x12345678, 0x9abc, 0xdef0, 0x1234, 0x56789abcdef0)
+#define BT_UUID_TEST_CMD_VAL BT_UUID_128_ENCODE(0x12345678, 0x9abc, 0xdef0, 0x1234, 0x56789abcdef1)
+#define BT_UUID_TEST_CRITICAL_VAL BT_UUID_128_ENCODE(0x12345678, 0x9abc, 0xdef0, 0x1234, 0x56789abcdef2)
+#define BT_UUID_TEST_NONCRITICAL_VAL BT_UUID_128_ENCODE(0x12345678, 0x9abc, 0xdef0, 0x1234, 0x56789abcdef3)
+
+#define BT_UUID_TEST_SERVICE BT_UUID_DECLARE_128(BT_UUID_TEST_SERVICE_VAL)
+#define BT_UUID_TEST_CMD BT_UUID_DECLARE_128(BT_UUID_TEST_CMD_VAL)
+#define BT_UUID_TEST_CRITICAL BT_UUID_DECLARE_128(BT_UUID_TEST_CRITICAL_VAL)
+#define BT_UUID_TEST_NONCRITICAL BT_UUID_DECLARE_128(BT_UUID_TEST_NONCRITICAL_VAL)
+```
+
+---
+
+#### Step 2. Define the service and characteristics
+
+Here we define the service and its characteristics using `BT_GATT_SERVICE_DEFINE`. Each characteristic is assigned appropriate properties (`WRITE`, `INDICATE`, `NOTIFY`) and permissions.
+
+```c
+BT_GATT_SERVICE_DEFINE(test_svc,
+    BT_GATT_PRIMARY_SERVICE(BT_UUID_TEST_SERVICE),
+
+    BT_GATT_CHARACTERISTIC(BT_UUID_TEST_CMD, BT_GATT_CHRC_WRITE,
+                           BT_GATT_PERM_WRITE, NULL, write_cmd, NULL),
+
+    BT_GATT_CHARACTERISTIC(BT_UUID_TEST_CRITICAL, BT_GATT_CHRC_INDICATE,
+                           BT_GATT_PERM_NONE, NULL, NULL, NULL),
+    BT_GATT_CCC(critical_ccc_cfg_changed, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE),
+
+    BT_GATT_CHARACTERISTIC(BT_UUID_TEST_NONCRITICAL, BT_GATT_CHRC_NOTIFY,
+                           BT_GATT_PERM_NONE, NULL, NULL, NULL),
+    BT_GATT_CCC(noncritical_ccc_cfg_changed, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE)
+);
+```
+
+> **Note**: `BT_GATT_CCC` adds a Client Characteristic Configuration Descriptor, which allows the client to enable or disable notifications/indications.
+
+---
+
+#### Step 3. Define the CCCD callback functions
+
+These callbacks are used in the previous step to handle changes in the CCCD values.
+
+```c
+static bool notify_enabled;
+static bool indicate_enabled;
+
+static void critical_ccc_cfg_changed(const struct bt_gatt_attr *attr, uint16_t value)
+{
+    indicate_enabled = (value == BT_GATT_CCC_INDICATE);
+    LOG_INF("Indicate enabled: %s", indicate_enabled ? "true" : "false");
+}
+
+static void noncritical_ccc_cfg_changed(const struct bt_gatt_attr *attr, uint16_t value)
+{
+    notify_enabled = (value == BT_GATT_CCC_NOTIFY);
+    LOG_INF("Notify enabled: %s", notify_enabled ? "true" : "false");
+}
+```
+
+---
+
+#### Step 4. Define the write callback function
+
+The write callback interprets the value written by the client and sends either a notification or an indication.
+
+```c
+static struct bt_gatt_indicate_params ind_params;
+static uint8_t dummy_cmd;
+
+static ssize_t write_cmd(struct bt_conn *conn, const struct bt_gatt_attr *attr,
+                         const void *buf, uint16_t len, uint16_t offset, uint8_t flags)
+{
+    if (len != sizeof(uint8_t))
+    {
+        return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+    }
+
+    dummy_cmd = *((uint8_t *)buf);
+    const uint32_t dummy_data = 0xAABBCCDD;
+
+    if (dummy_cmd)
+    {
+        // Indicate critical data
+        if (!indicate_enabled)
+        {
+            LOG_WRN("Indications not enabled");
+            return -EACCES;
+        }
+        LOG_INF("Indicating critical data: %x", dummy_data);
+        ind_params.attr = &test_svc.attrs[3];
+        ind_params.func = indicate_cb;
+        ind_params.data = &dummy_data;
+        ind_params.len = sizeof(dummy_data);
+        return bt_gatt_indicate(NULL, &ind_params);
+    }
+    else
+    {
+        // Notify non-critical data
+        if (!notify_enabled)
+        {
+            LOG_WRN("Notifications not enabled");
+            return -EACCES;
+        }
+        LOG_INF("Notifying non-critical data: %x", dummy_data);
+        return bt_gatt_notify(NULL, &test_svc.attrs[6], &dummy_data, sizeof(dummy_data));
+    }
+}
+```
+
+> **Note**:
+- `bt_gatt_indicate()` uses a parameter structure because it handles asynchronous acknowledgment.  
+- `bt_gatt_notify()` is simpler—no acknowledgment, no callback, just send.
+- The `attr` indices for `.attrs[3]` and `.attrs[6]` refer to the **characteristic declaration attribute**, not the value or CCCD. Remember:  
+  - Service declaration = 1 attribute  
+  - Each characteristic = 2 attributes (declaration + value)  
+  - Optional CCCD = 1 attribute  
+  - So manually counting the offsets is required unless dynamic lookup is used.
+
+---
+
+#### Step 5. Define the indication callback
+
+This is called after the client acknowledges the indication.
+
+```c
+static void indicate_cb(struct bt_conn *conn, struct bt_gatt_indicate_params *params, uint8_t err)
+{
+    LOG_DBG("Indication result: %s", err == 0U ? "success" : "fail");
+}
+```
