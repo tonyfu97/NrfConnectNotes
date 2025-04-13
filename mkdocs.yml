@@ -26,6 +26,7 @@ nav:
     - BLE-Connection Parameters: ble-04-conn-params.md
     - BLE-GATT Client Operations: ble-05-gatt-client.md
     - BLE-GATT Server Operations: ble-06-gatt-server.md
+    - BLE-Security Modes: ble-07-security-modes.md
 
 copyright: Copyright &copy; 2025 Tony Fu
 
