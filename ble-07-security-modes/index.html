@@ -350,6 +350,125 @@ Otherwise, if <strong>MITM is required</strong>, Passkey Entry or Numeric Compar
 If neither applies, <strong>Just Works</strong> is used by default.</p>
 <hr />
 <h1 id="in-action">In Action</h1>
+<p>In this section, we’ll define two writable characteristics:<br />
+- One that <strong>requires encryption</strong> to access<br />
+- Another that <strong>requires authentication</strong>  </p>
+<p>When you try to write to either from your phone app, the device will prompt you to pair, depending on the required security level.</p>
+<hr />
+<h3 id="1-enable-pairing-support">1. Enable pairing support</h3>
+<p>Enable the Security Manager Protocol (SMP) in your <code>prj.conf</code>:</p>
+<pre><code class="language-kconfig">CONFIG_BT_SMP=y
+</code></pre>
+<hr />
+<h3 id="2-declare-the-characteristic-uuids">2. Declare the characteristic UUIDs</h3>
+<p>Just like in previous examples, define custom UUIDs for the service and its characteristics:</p>
+<pre><code class="language-c">#define BT_UUID_TEST_SERVICE_VAL BT_UUID_128_ENCODE(0x12345678, 0x9abc, 0xdef0, 0x1234, 0x56789abcdef0)
+#define BT_UUID_TEST_ENCRYPT_VAL BT_UUID_128_ENCODE(0x12345678, 0x9abc, 0xdef0, 0x1234, 0x56789abcdef1)
+
+#define BT_UUID_TEST_SERVICE BT_UUID_DECLARE_128(BT_UUID_TEST_SERVICE_VAL)
+#define BT_UUID_TEST_ENCRYPT BT_UUID_DECLARE_128(BT_UUID_TEST_ENCRYPT_VAL)
+</code></pre>
+<hr />
+<h3 id="3-define-the-characteristics">3. Define the characteristics</h3>
+<p>We use <code>BT_GATT_PERM_WRITE_ENCRYPT</code> to require link encryption for writing:</p>
+<pre><code class="language-c">BT_GATT_SERVICE_DEFINE(my_svc,
+    BT_GATT_PRIMARY_SERVICE(BT_UUID_TEST_SERVICE),
+
+    // Encrypted write characteristic
+    BT_GATT_CHARACTERISTIC(BT_UUID_TEST_ENCRYPT, BT_GATT_CHRC_WRITE,
+                           BT_GATT_PERM_WRITE_ENCRYPT, NULL, encrypt_write, NULL),
+);
+</code></pre>
+<hr />
+<h3 id="4-implement-the-write-handler">4. Implement the write handler</h3>
+<p>Same as earlier examples (not shown here). It will be called once security is sufficient.</p>
+<hr />
+<h3 id="5-track-security-level-changes">5. Track security level changes</h3>
+<p>Use the <code>security_changed</code> callback to monitor when the connection is encrypted or authenticated:</p>
+<pre><code class="language-c">static void on_security_changed(struct bt_conn *conn, bt_security_t level, enum bt_security_err err)
+{
+    char peer_addr[BT_ADDR_LE_STR_LEN];
+    bt_addr_le_to_str(bt_conn_get_dst(conn), peer_addr, sizeof(peer_addr));
+
+    if (err == 0) {
+        LOG_INF(&quot;Link secured with %s (level %u)&quot;, peer_addr, level);
+    } else {
+        LOG_WRN(&quot;Security setup failed with %s (level %u, err %d)&quot;, peer_addr, level, err);
+    }
+}
+
+struct bt_conn_cb connection_callbacks = {
+    .connected = on_connected,
+    .disconnected = on_disconnected,
+    .security_changed = on_security_changed,
+};
+</code></pre>
+<hr />
+<h3 id="6-attempt-a-write">6. Attempt a write</h3>
+<p>When you try to write to the encrypted characteristic, the phone will prompt you to pair.<br />
+Once encrypted, the connection will be promoted to <strong>Security Level 2</strong>.</p>
+<hr />
+<h3 id="7-unpair-before-moving-on">7. Unpair before moving on</h3>
+<p>To start fresh:
+- On your phone, unpair the device via Bluetooth settings.
+- In firmware, clear bonding info with:</p>
+<pre><code class="language-c">bt_unpair(BT_ID_DEFAULT, NULL);
+</code></pre>
+<hr />
+<h3 id="8-add-an-authenticated-characteristic">8. Add an authenticated characteristic</h3>
+<p>Now define a second characteristic that requires <strong>authentication</strong>:</p>
+<pre><code class="language-c">#define BT_UUID_TEST_AUTHEN_VAL BT_UUID_128_ENCODE(0x12345678, 0x9abc, 0xdef0, 0x1234, 0x56789abcdef2)
+#define BT_UUID_TEST_AUTHEN BT_UUID_DECLARE_128(BT_UUID_TEST_AUTHEN_VAL)
+
+BT_GATT_SERVICE_DEFINE(my_svc,
+    BT_GATT_PRIMARY_SERVICE(BT_UUID_TEST_SERVICE),
+
+    // Encrypted write characteristic
+    BT_GATT_CHARACTERISTIC(BT_UUID_TEST_ENCRYPT, BT_GATT_CHRC_WRITE,
+                           BT_GATT_PERM_WRITE_ENCRYPT, NULL, encrypt_write, NULL),
+
+    // Authenticated write characteristic
+    BT_GATT_CHARACTERISTIC(BT_UUID_TEST_AUTHEN, BT_GATT_CHRC_WRITE,
+                           BT_GATT_PERM_WRITE_AUTHEN, NULL, authen_write, NULL),
+);
+</code></pre>
+<hr />
+<h3 id="9-display-the-passkey">9. Display the passkey</h3>
+<p>To complete an authenticated pairing, we need to show the user a passkey. This is done using the authentication callbacks:</p>
+<pre><code class="language-c">static void display_passkey(struct bt_conn *conn, unsigned int passkey)
+{
+    char peer_addr[BT_ADDR_LE_STR_LEN];
+    bt_addr_le_to_str(bt_conn_get_dst(conn), peer_addr, sizeof(peer_addr));
+
+    LOG_INF(&quot;Enter passkey on %s: %06u&quot;, peer_addr, passkey);
+}
+
+static void cancel_authentication(struct bt_conn *conn)
+{
+    char peer_addr[BT_ADDR_LE_STR_LEN];
+    bt_addr_le_to_str(bt_conn_get_dst(conn), peer_addr, sizeof(peer_addr));
+
+    LOG_INF(&quot;Pairing canceled by remote: %s&quot;, peer_addr);
+}
+
+static const struct bt_conn_auth_cb auth_callbacks = {
+    .passkey_display = display_passkey,
+    .cancel = cancel_authentication,
+};
+</code></pre>
+<hr />
+<h3 id="10-register-authentication-handlers">10. Register authentication handlers</h3>
+<p>Don't forget to register your callbacks during initialization:</p>
+<pre><code class="language-c">int main(void)
+{
+    bt_unpair(BT_ID_DEFAULT, NULL);
+    bt_conn_auth_cb_register(&amp;auth_callbacks);
+    bt_conn_cb_register(&amp;connection_callbacks);
+
+    bt_enable(NULL);
+    // Other setup...
+}
+</code></pre>
               
             </div>
           </div><footer>
