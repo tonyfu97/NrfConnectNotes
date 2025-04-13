@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/ble-07-security-modes/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>BLE-Security Modes - nRF Connect SDK Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "BLE-Security Modes";
+        var mkdocs_page_input_path = "ble-07-security-modes.md";
+        var mkdocs_page_url = "/NrfConnectNotes/ble-07-security-modes/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/django.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', "G-274394082");
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> nRF Connect SDK Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-01-minimal-skeleton/">BLE-Minimal Skeleton</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-02-advertising-simple/">BLE-Advertising Simple</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-03-advert-connectable/">BLE-Advertising Connectable</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-04-conn-params/">BLE-Connection Parameters</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-05-gatt-client/">BLE-GATT Client Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-06-gatt-server/">BLE-GATT Server Operations</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">BLE-Security Modes</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#common-ble-security-threats">Common BLE Security Threats</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#identity-tracking-id">Identity Tracking (ID)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#passive-eavesdropping-pe">Passive Eavesdropping (PE)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#man-in-the-middle-mitm">Man-in-the-Middle (MITM)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#ble-security-levels">BLE Security Levels</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#notes">Notes:</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#connecting-vs-pairing-vs-bonding">Connecting vs Pairing vs Bonding</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#more-on-pairing">More on Pairing</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#phase-1-pairing-feature-exchange">Phase 1: Pairing Feature Exchange</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#phase-2-key-generation-and-authentication">Phase 2: Key Generation and Authentication</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#phase-3-key-distribution-only-if-bonding">Phase 3: Key Distribution (only if bonding)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#more-on-phase-2-pairing-methods">More on Phase 2: Pairing Methods</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#details">Details</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#just-works">Just Works</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#passkey-entry">Passkey Entry</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#out-of-band-oob">Out of Band (OOB)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#numeric-comparison">Numeric Comparison</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#how-pairing-method-is-selected">How Pairing Method is Selected</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">nRF Connect SDK Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">BLE-Security Modes</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/ble-07-security-modes.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="07-ble-security-modes">07 - BLE Security Modes</h1>
+<h2 id="common-ble-security-threats">Common BLE Security Threats</h2>
+<p>Here are some common threats to BLE security:</p>
+<h3 id="identity-tracking-id">Identity Tracking (<strong>ID</strong>)</h3>
+<p>Tracking a device over time using its Bluetooth address. Prevented by using <strong>resolvable private addresses</strong> with the <strong>IRK (Identity Resolving Key)</strong> to obscure the device identity.</p>
+<h3 id="passive-eavesdropping-pe">Passive Eavesdropping (<strong>PE</strong>)</h3>
+<p>An attacker silently listens to data over the air. Prevented by <strong>encrypting</strong> the connection.</p>
+<h3 id="man-in-the-middle-mitm">Man-in-the-Middle (<strong>MITM</strong>)</h3>
+<p>An attacker impersonates both peers, relaying and potentially modifying messages. Prevented by <strong>authenticated pairing</strong> methods that confirm peer identity (e.g., Passkey Entry, Numeric Comparison).</p>
+<hr />
+<h2 id="ble-security-levels">BLE Security Levels</h2>
+<table>
+<thead>
+<tr>
+<th><strong>Security Level</strong></th>
+<th><strong>Description</strong></th>
+<th><strong>Protects Against</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Level 1</strong></td>
+<td>No security: no encryption, no authentication.</td>
+<td><em>None</em></td>
+</tr>
+<tr>
+<td><strong>Level 2</strong></td>
+<td>Encrypted link using <strong>unauthenticated pairing</strong> (e.g., Just Works).</td>
+<td>PE</td>
+</tr>
+<tr>
+<td><strong>Level 3</strong></td>
+<td>Encrypted link with <strong>authenticated pairing</strong> (e.g., Passkey, OOB with Legacy).</td>
+<td>PE, basic MITM</td>
+</tr>
+<tr>
+<td><strong>Level 4</strong></td>
+<td>Encrypted link with <strong>LE Secure Connections + authentication</strong>.</td>
+<td>PE, MITM, ID (with privacy)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="notes">Notes:</h3>
+<ul>
+<li>All connections start at <strong>Level 1</strong>, then upgrade during pairing.</li>
+<li><strong>Just Works</strong> leads to <strong>Level 2</strong> — encrypted but not authenticated.</li>
+<li><strong>Passkey Entry</strong> or <strong>OOB</strong> leads to <strong>Level 3</strong>.</li>
+<li><strong>Level 4</strong> requires both devices to support <strong>LE Secure Connections</strong> and use authenticated pairing.</li>
+<li><strong>Privacy (ID protection)</strong> is separate from these levels but essential to combat <strong>identity tracking</strong>.</li>
+</ul>
+<hr />
+<h2 id="connecting-vs-pairing-vs-bonding">Connecting vs Pairing vs Bonding</h2>
+<p>Before diving into BLE security modes, it's important to understand three foundational terms: <strong>connecting</strong>, <strong>pairing</strong>, and <strong>bonding</strong>. These steps form the basis of how two Bluetooth devices establish trust. While connecting simply creates a communication link, <strong>pairing</strong> is the beginning of any real security—it’s when encryption keys are generated and exchanged. <strong>Bonding</strong> builds on pairing by storing that trust for future sessions.</p>
+<ul>
+<li><strong>Connecting</strong></li>
+<li>Establishes a temporary link between two BLE devices.</li>
+<li>
+<p>No security by default.</p>
+</li>
+<li>
+<p><strong>Pairing</strong></p>
+</li>
+<li>Establishes <strong>trusted relationship</strong> for the current session.</li>
+<li>Negotiates and exchanges encryption keys.</li>
+<li>
+<p>Enables secure data transfer (encryption, authentication).</p>
+</li>
+<li>
+<p><strong>Bonding</strong></p>
+</li>
+<li>Saves pairing information (keys) to <strong>non-volatile memory</strong>.</li>
+<li>Allows devices to reconnect securely <strong>without re-pairing</strong>.</li>
+<li>Typically happens automatically after successful pairing if both devices support it.</li>
+</ul>
+<blockquote>
+<p>In short: <strong>Connect → Pair → Bond (optional but persistent)</strong>.</p>
+</blockquote>
+<hr />
+<h2 id="more-on-pairing">More on Pairing</h2>
+<p>The <strong>pairing process</strong> can be further divided into three distinct phases:</p>
+<h3 id="phase-1-pairing-feature-exchange">Phase 1: Pairing Feature Exchange</h3>
+<ul>
+<li>Initiated by the <strong>central</strong> device via a <strong>Pairing Request</strong>.</li>
+<li>The <strong>peripheral</strong> responds with a <strong>Pairing Response</strong>.</li>
+<li>Devices exchange their:</li>
+<li><strong>I/O capabilities</strong> (e.g., keyboard, display, none).</li>
+<li><strong>OOB and MITM flags</strong> (to determine required security).</li>
+<li>Supported <strong>authentication and encryption options</strong>.</li>
+<li>Whether they wish to bond or just pair temporarily.</li>
+<li>Based on this information, the devices will choose an appropriate <strong>pairing method</strong> in Phase 2.</li>
+</ul>
+<h3 id="phase-2-key-generation-and-authentication">Phase 2: Key Generation and Authentication</h3>
+<ul>
+<li>Devices perform cryptographic operations to generate encryption keys.</li>
+<li>Depending on the pairing mode:</li>
+<li><strong>Legacy Pairing</strong>: Generates a <strong>Short Term Key (STK)</strong> from a <strong>Temporary Key (TK)</strong>.</li>
+<li><strong>LE Secure Connections</strong>: Uses Elliptic Curve Diffie-Hellman (ECDH) to generate a <strong>Long Term Key (LTK)</strong> directly and securely.</li>
+<li>The actual <strong>pairing method</strong> used depends on capabilities and flags:</li>
+<li><strong>Just Works</strong> (unauthenticated)</li>
+<li><strong>Passkey Entry</strong> (user types in/display 6-digit code)</li>
+<li><strong>Out-of-Band (OOB)</strong> (e.g., via NFC)</li>
+<li><strong>Numeric Comparison</strong> (LE Secure Connections only)</li>
+<li>This phase determines <strong>how secure</strong> the pairing is — especially whether it's protected against MITM attacks.</li>
+</ul>
+<h3 id="phase-3-key-distribution-only-if-bonding">Phase 3: Key Distribution (only if bonding)</h3>
+<ul>
+<li>If bonding is agreed upon, devices exchange and store keys:</li>
+<li><strong>LTK</strong> (used to encrypt future connections)</li>
+<li><strong>IRK</strong> (Identity Resolving Key for address privacy)</li>
+<li><strong>CSRK</strong> (for signed data, optional)</li>
+<li>These keys are saved to non-volatile memory so that future reconnections can skip pairing and resume secure communication immediately.</li>
+</ul>
+<hr />
+<h2 id="more-on-phase-2-pairing-methods">More on Phase 2: Pairing Methods</h2>
+<p>The method used to perform pairing directly affects the <strong>security level</strong>.</p>
+<table>
+<thead>
+<tr>
+<th><strong>Method</strong></th>
+<th><strong>Authentication</strong></th>
+<th><strong>Requires User Interaction</strong></th>
+<th><strong>MITM Protection</strong></th>
+<th><strong>Available In</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Just Works</strong></td>
+<td>❌ No</td>
+<td>Minimal (accept prompt)</td>
+<td>❌ No</td>
+<td>Legacy &amp; LE Secure Connections</td>
+</tr>
+<tr>
+<td><strong>Passkey Entry</strong></td>
+<td>✅ Yes</td>
+<td>Yes (input or display)</td>
+<td>✅ Yes</td>
+<td>Legacy &amp; LE Secure Connections</td>
+</tr>
+<tr>
+<td><strong>Out of Band (OOB)</strong></td>
+<td>✅ Yes</td>
+<td>External channel (e.g., NFC)</td>
+<td>✅ Yes</td>
+<td>Legacy &amp; LE Secure Connections</td>
+</tr>
+<tr>
+<td><strong>Numeric Comparison</strong></td>
+<td>✅ Yes</td>
+<td>Yes (compare 6-digit number)</td>
+<td>✅ Yes</td>
+<td><strong>LE Secure Connections only</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="details">Details</h3>
+<h4 id="just-works"><strong>Just Works</strong></h4>
+<ul>
+<li>The simplest pairing method.</li>
+<li>Devices derive encryption keys without authentication.</li>
+<li>Used when neither device has a display or keyboard (e.g., most wearables).</li>
+<li>Susceptible to <strong>MITM attacks</strong>, as the user cannot verify peer identity.</li>
+<li>Results in <strong>Security Level 2</strong> (unauthenticated encryption).</li>
+</ul>
+<h4 id="passkey-entry"><strong>Passkey Entry</strong></h4>
+<ul>
+<li>A <strong>6-digit passkey</strong> is shown on one device and entered on the other.</li>
+<li>Which device displays or inputs depends on I/O capabilities.</li>
+<li>Provides <strong>authenticated pairing</strong>, resistant to MITM.</li>
+<li>Yields <strong>Security Level 3</strong> (authenticated encryption).</li>
+</ul>
+<h4 id="out-of-band-oob"><strong>Out of Band (OOB)</strong></h4>
+<ul>
+<li>Key material is exchanged over an external medium (e.g., <strong>NFC</strong>, QR codes).</li>
+<li>Ideal for devices with limited BLE I/O but secure secondary channels.</li>
+<li>Only <strong>one</strong> device needs to support OOB for it to be used (in Secure Connections).</li>
+<li>Provides MITM protection, assuming the OOB channel is trusted.</li>
+</ul>
+<h4 id="numeric-comparison"><strong>Numeric Comparison</strong></h4>
+<ul>
+<li>Both devices display the same 6-digit number.</li>
+<li>The user confirms if the numbers match (presses “Yes”).</li>
+<li>Ensures that no attacker is relaying the connection.</li>
+<li>Only available in <strong>LE Secure Connections</strong>.</li>
+<li>Offers strong MITM protection and <strong>Security Level 4</strong>.</li>
+</ul>
+<h3 id="how-pairing-method-is-selected">How Pairing Method is Selected</h3>
+<p>Pairing method selection is automatic and based on:
+- Devices' <strong>I/O capabilities</strong>
+- <strong>OOB</strong> and <strong>MITM</strong> flags exchanged in Phase 1
+- Support for <strong>LE Secure Connections</strong></p>
+<p>If <strong>OOB is supported</strong>, it is chosen.<br />
+Otherwise, if <strong>MITM is required</strong>, Passkey Entry or Numeric Comparison is used.<br />
+If neither applies, <strong>Just Works</strong> is used by default.</p>
+<hr />
+<h1 id="in-action">In Action</h1>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ble-06-gatt-server/" class="btn btn-neutral float-left" title="BLE-GATT Server Operations"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../ble-06-gatt-server/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

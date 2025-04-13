@@ -128,6 +128,8 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#other-available-callbacks-in-bt_conn_cb">Other Available Callbacks in bt_conn_cb</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#connection-and-disconnection-error-codes">Connection and Disconnection Error Codes</a>
+    </li>
         </ul>
     </li>
     </ul>
@@ -143,6 +145,10 @@
               </ul>
               <ul>
                 <li class="toctree-l1"><a class="reference internal" href="../ble-06-gatt-server/">BLE-GATT Server Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-07-security-modes/">BLE-Security Modes</a>
                 </li>
               </ul>
       </div>
@@ -531,6 +537,7 @@ void on_disconnected(struct bt_conn *conn, uint8_t reason)
 <li><code>bt_conn_unref()</code> is called on disconnection to release the reference.</li>
 <li><code>bt_conn_get_dst()</code> gets the peer device’s address.</li>
 </ul>
+<p>Although tracking <code>bt_conn</code> isn't strictly necessary in this example, it becomes important when supporting <strong>multiple simultaneous connections</strong>. Keeping a reference to each connection allows you to target specific peers—for example, sending data only to one device or applying per-connection security settings. Most Zephyr Bluetooth APIs accept <code>NULL</code> as the <code>bt_conn</code> argument, which simply means “send to all connected peers.” But for more advanced use cases, managing and using specific <code>bt_conn</code> pointers is essential for precise control.</p>
 <h3 id="registering-callbacks">Registering Callbacks</h3>
 <pre><code class="language-c">static struct bt_conn_cb connection_callbacks = {
     .connected = on_connected,
@@ -555,6 +562,16 @@ bt_conn_cb_register(&amp;connection_callbacks);
 <li><code>subrate_changed</code>: Called when connection subrate settings change.</li>
 </ul>
 <p>These are mostly optional and only needed for advanced use cases.</p>
+<hr />
+<h3 id="connection-and-disconnection-error-codes">Connection and Disconnection Error Codes</h3>
+<p>Both <code>on_connected()</code> and <code>on_disconnected()</code> callbacks report errors using <strong>HCI error codes</strong> defined by the Bluetooth Core Specification. These are standard codes used across the Bluetooth stack to indicate why a connection failed or was terminated.</p>
+<ul>
+<li>In <code>on_connected()</code>, the <code>err</code> parameter is <code>0</code> on success, or an HCI error (e.g., <code>0x3E</code> for "Connection Failed to be Established").</li>
+<li>In <code>on_disconnected()</code>, the <code>reason</code> parameter is also an HCI error code (e.g., <code>0x13</code> for "Remote User Terminated Connection").</li>
+</ul>
+<p>These codes help identify common issues such as timeouts, user-initiated disconnects, or parameter mismatches.</p>
+<p>You can refer to the official list of controller error codes here:<br />
+🔗 <a href="https://www.bluetooth.com/wp-content/uploads/Files/Specification/HTML/Core-54/out/en/architecture,-mixing,-and-conventions/controller-error-codes.html">Bluetooth Core Spec v5.4 – Controller Error Codes</a></p>
               
             </div>
           </div><footer>
