@@ -125,9 +125,10 @@
               
                 <h1 id="08-ble-whitelisting">08 - BLE Whitelisting</h1>
 <p><strong>Author:</strong> Tony Fu<br />
-<strong>Date:</strong> 2025/04/26<br />
+<strong>Date:</strong> 2025/04/26 <br />
 <strong>Device:</strong> nRF52840 DK<br />
 <strong>Toolchain:</strong> nRF Connect SDK v3.0.0  </p>
+<p>When enabling <code>CONFIG_SETTINGS</code> on the nRF52840 Dongle, the device consistently hangs at startup. This issue occurs because the settings subsystem, by default, places the storage area (<code>settings_storage</code>) at the end of flash memory — specifically starting around address <code>0xFE000</code>. However, on the nRF52840 Dongle, the flash layout is different: it includes a pre-programmed bootloader occupying the range <code>0xE0000</code> to <code>0x100000</code> (1 MB). Since the default application build, assuming full flash usage, writes settings data into the storage partition starting at <code>0xFE000</code>, this overlaps with the bootloader region, leading to flash corruption and a non-functional device (COM port disappears, boot fails). Due to these address conflicts and the way Partition Manager auto-generates partitions, we have opted to use the nRF52840 Development Kit (DK) instead of the Dongle for this project. For further discussion on this issue and possible workarounds, refer to the open issue at <a href="https://github.com/zephyrproject-rtos/zephyr/issues/83037">Zephyr GitHub Issue #83037</a>.</p>
 <hr />
 <h2 id="bonding-with-persistent-storage">Bonding with Persistent Storage</h2>
 <p>To store Bluetooth bond information across device resets (power cycles), we must enable several configuration options in <code>prj.conf</code>:</p>
