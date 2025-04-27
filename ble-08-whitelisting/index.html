@@ -87,6 +87,14 @@
     <li class="toctree-l2"><a class="reference internal" href="#bonding-with-persistent-storage">Bonding with Persistent Storage</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#whitelisting-aka-filter-accept-list">Whitelisting (a.k.a. Filter Accept List)</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#advertising-with-whitelisting">Advertising with Whitelisting</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#adding-devices-to-the-whitelist">Adding Devices to the Whitelist</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#erasing-bonding-information">Erasing Bonding Information</a>
     </li>
     </ul>
                 </li>
@@ -179,6 +187,108 @@ start_advertising();
 </code></pre>
 <hr />
 <h2 id="whitelisting-aka-filter-accept-list">Whitelisting (a.k.a. Filter Accept List)</h2>
+<p>Whitelisting restricts which devices can connect to your Bluetooth advertiser.<br />
+It is based on a list of trusted (bonded) devices, called the Filter Accept List (FAL).<br />
+When a device is bonded, its address is added to the FAL.<br />
+When a device tries to connect, the Bluetooth stack checks if it is in the FAL.</p>
+<p>To enable whitelisting, add these configurations in your <code>prj.conf</code>:</p>
+<pre><code class="language-kconfig">CONFIG_BT_FILTER_ACCEPT_LIST=y
+CONFIG_BT_PRIVACY=y
+CONFIG_BT_MAX_PAIRED=3
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Config</th>
+<th style="text-align: left;">Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>CONFIG_BT_FILTER_ACCEPT_LIST</strong></td>
+<td style="text-align: left;">Enables the use of an internal list of allowed devices for scanning and connection filtering.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CONFIG_BT_PRIVACY</strong></td>
+<td style="text-align: left;">Enables the use of Resolvable Private Addresses (RPAs) to protect user identity and avoid static MAC addresses. This helps when using whitelisting, because bonded devices can still recognize each other even if their addresses change.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>CONFIG_BT_MAX_PAIRED</strong></td>
+<td style="text-align: left;">Limits how many bonded devices can be stored and managed by the Bluetooth stack.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="advertising-with-whitelisting">Advertising with Whitelisting</h3>
+<p>To actually use the FAL, you must configure your advertising parameters to filter both:
+- <strong>Scan Requests</strong> (devices trying to get more info like UUIDs)
+- <strong>Connection Requests</strong> (devices trying to establish a link)</p>
+<p>You do this by adding two advertising options:</p>
+<ul>
+<li><strong>BT_LE_ADV_OPT_FILTER_SCAN_REQ</strong>: only allow devices in the whitelist to send scan requests.</li>
+<li><strong>BT_LE_ADV_OPT_FILTER_CONN</strong>: only allow devices in the whitelist to initiate connections.</li>
+</ul>
+<p>You can define your whitelist-enabled advertising like this:</p>
+<pre><code class="language-c">#define BT_LE_ADV_CONN_ACCEPT_LIST \
+    BT_LE_ADV_PARAM(BT_LE_ADV_OPT_CONN | BT_LE_ADV_OPT_FILTER_CONN | BT_LE_ADV_OPT_FILTER_SCAN_REQ, \
+                    BT_GAP_ADV_FAST_INT_MIN_2, BT_GAP_ADV_FAST_INT_MAX_2, NULL)
+</code></pre>
+<p>This ensures that only known, bonded devices can see your scan response and initiate a connection.</p>
+<h3 id="adding-devices-to-the-whitelist">Adding Devices to the Whitelist</h3>
+<p>Before using the Filter Accept List (whitelist) during advertising, you must populate it with the addresses of bonded devices.<br />
+This process is typically done after Bluetooth is initialized but before starting advertising.</p>
+<pre><code class="language-c">static void add_bonded_device_to_whitelist(const struct bt_bond_info *bond, void *context)
+{
+    int *added_count = context;
+
+    if (*added_count &lt; 0) {
+        return;
+    }
+
+    int ret = bt_le_filter_accept_list_add(&amp;bond-&gt;addr);
+    if (ret) {
+        LOG_INF(&quot;Failed to add device to whitelist (err: %d)&quot;, ret);
+        *added_count = -EIO;
+    } else {
+        (*added_count)++;
+        LOG_INF(&quot;Device added to whitelist: %02X %02X&quot;, bond-&gt;addr.a.val[0], bond-&gt;addr.a.val[1]);
+    }
+}
+</code></pre>
+<p>We will use this callback function below to add bonded devices to the whitelist:</p>
+<pre><code class="language-c">static int configure_whitelist(uint8_t id)
+{
+    int ret = bt_le_filter_accept_list_clear();
+    if (ret) {
+        LOG_INF(&quot;Whitelist clear failed (err: %d)&quot;, ret);
+        return ret;
+    }
+
+    int bonded_devices = 0;
+    bt_foreach_bond(id, add_bonded_device_to_whitelist, &amp;bonded_devices);
+
+    return bonded_devices;
+}
+</code></pre>
+<p>This function:
+1. Clears any existing whitelist.
+2. Iterates over all bonded devices (<code>bt_foreach_bond()</code>).
+3. Adds each bonded device to the whitelist.
+4. Returns the number of devices added.</p>
+<p>Now we just need to call <code>configure_whitelist()</code> before starting advertising:</p>
+<hr />
+<h2 id="erasing-bonding-information">Erasing Bonding Information</h2>
+<p>Sometimes you need to remove all stored bonds, for example when:
+- Resetting the device for new users.
+- Testing new pairing procedures.</p>
+<p>You can erase all bonding information with a simple API call:</p>
+<pre><code class="language-c">int ret = bt_unpair(BT_ID_DEFAULT, BT_ADDR_LE_ANY);
+</code></pre>
+<ul>
+<li><code>BT_ID_DEFAULT</code> specifies the local identity (usually 0 unless you use multiple identities).</li>
+<li><code>BT_ADDR_LE_ANY</code> means "remove all bonded devices" (wildcard address).</li>
+</ul>
+<p>If successful, all paired devices are forgotten, and the whitelist (if any) must be rebuilt.</p>
+<p>After erasing bonds, you should also clear the FAL to ensure no stale entries remain. Also, you should go to the Bluetooth settings of your central device (e.g., phone) and remove the bond from there as well.</p>
               
             </div>
           </div><footer>

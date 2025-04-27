@@ -136,6 +136,10 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="05-ble-gatt-client-initiated-operations">05 - BLE GATT Client-Initiated Operations</h1>
+<p><strong>Author:</strong> Tony Fu<br />
+<strong>Date:</strong> 2025/4/6
+<strong>Device:</strong> nRF52840 Dongle
+<strong>Toolchain:</strong> nRF Connect SDK v2.8.0</p>
 <p>In the GATT protocol, the <strong>server</strong> holds the data. The <strong>client</strong> can request the server to perform operations such as <strong>read</strong>, <strong>write</strong>, or <strong>write without response</strong> — these are known as <em>client-initiated operations</em>. Alternatively, the client can <em>subscribe</em> to <strong>notifications</strong> or <strong>indications</strong>, which are <em>server-initiated operations</em>.</p>
 <p>This note focuses on <strong>client-initiated operations</strong>. The server-side implementation will be covered in a later note. We will walk through how to define a custom 128-bit UUID GATT service with both readable and writable characteristics in Zephyr, using the Nordic SDK style.</p>
 <hr />
