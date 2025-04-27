@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/nfc-01-simple-text/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>NFC-Introduction - nRF Connect SDK Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "NFC-Introduction";
+        var mkdocs_page_input_path = "nfc-01-simple-text.md";
+        var mkdocs_page_url = "/NrfConnectNotes/nfc-01-simple-text/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/django.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', "G-274394082");
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> nRF Connect SDK Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../setup-01-vscode/">Setup VSCode</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-01-minimal-skeleton/">BLE-Minimal Skeleton</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-02-advertising-simple/">BLE-Advertising Simple</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-03-advert-connectable/">BLE-Advertising Connectable</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-04-conn-params/">BLE-Connection Parameters</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-05-gatt-client/">BLE-GATT Client Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-06-gatt-server/">BLE-GATT Server Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-07-security-modes/">BLE-Security Modes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-08-whitelisting/">BLE-Whitelisting</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">NFC-Introduction</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#what-is-nfc">What is NFC?</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#nfc-device-roles">NFC Device Roles</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#tag-passive">Tag (Passive)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#readerwriter-active">Reader/Writer (Active)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#peer-to-peer-both-active">Peer-to-Peer (Both Active)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#nfc-tag-types">NFC Tag Types</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#type-2-tag">Type 2 Tag</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#type-4-tag">Type 4 Tag</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#type-1-tag">Type 1 Tag</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#type-3-tag">Type 3 Tag</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#type-5-tag">Type 5 Tag</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#ndef-nfc-data-exchange-format">NDEF: NFC Data Exchange Format</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#ndef-message-and-records">NDEF Message and Records</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">nRF Connect SDK Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">NFC-Introduction</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/nfc-01-simple-text.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="nrf-01-introduction-to-nfc">NRF 01: Introduction to NFC</h1>
+<p><strong>Author:</strong> Tony Fu<br />
+<strong>Date:</strong> 2025/04/27<br />
+<strong>Device:</strong> nRF52840 DK<br />
+<strong>Toolchain:</strong> nRF Connect SDK v3.0.0  </p>
+<hr />
+<h2 id="what-is-nfc">What is NFC?</h2>
+<p>NFC stands for Near Field Communication. It allows two devices to communicate when they are very close, usually within a few centimeters. It is based on magnetic induction, not normal radio waves like Wi-Fi or Bluetooth. It is designed for very short-range and fast interactions. It does not need pairing or long setup.</p>
+<p>One device usually acts as a passive tag (it does not need power), and the other acts as an active reader (it powers the communication). Some devices, like phones, can do both.</p>
+<hr />
+<h2 id="nfc-device-roles">NFC Device Roles</h2>
+<p>In NFC communication, devices have specific roles:</p>
+<h3 id="tag-passive">Tag (Passive)</h3>
+<p>A tag stores data. It does not create its own signal. It waits to be powered by a reader. Example: an NFC sticker, a smart card, or an nRF board acting as a tag.</p>
+<h3 id="readerwriter-active">Reader/Writer (Active)</h3>
+<p>A reader generates a magnetic field. It reads data from or writes data to a tag. Example: a smartphone reading a poster or tapping to pay.</p>
+<h3 id="peer-to-peer-both-active">Peer-to-Peer (Both Active)</h3>
+<p>Two devices can talk to each other by taking turns. Both generate fields and exchange data. Example: two phones sharing a contact by tapping together.</p>
+<p>Most nRF boards can only act as a tag.</p>
+<hr />
+<h2 id="nfc-tag-types">NFC Tag Types</h2>
+<p>When using NFC, devices can either act as a polling device (reader) or a tag (listener). We will focus only on the tag role in this subsection.</p>
+<p>A tag is a passive NFC device. It does not generate its own electromagnetic field but waits for a polling device like a smartphone to scan it. When scanned, the tag responds by modulating the field. The tag contains simple data, such as a URL or text.</p>
+<p>Most of Nordic Semiconductor's nRF5 Series devices have a built-in NFC Tag peripheral. This peripheral operates using NFC-A technology (i.e., following the ISO/IEC 14443 Type A standard). NFC-A is the most widely used NFC signaling method and is compatible with most smartphones.</p>
+<p>The nRF Connect SDK provides libraries to emulate two kinds of NFC tag protocols:</p>
+<h3 id="type-2-tag">Type 2 Tag</h3>
+<p>Based on the NFC Forum Type 2 specification. These tags are simple, lightweight, and fast enough for basic NFC applications like sharing URLs, text messages, or launching apps.</p>
+<h3 id="type-4-tag">Type 4 Tag</h3>
+<p>Based on the NFC Forum Type 4 specification. These tags can store more data, support security features like authentication, and can be used for advanced tasks such as emulating access cards or payment cards.</p>
+<p>The nRF5 SDK or nRF Connect SDK includes precompiled libraries for both Type 2 and Type 4 Tag emulation. These libraries communicate with the hardware through the NFCT driver inside the nrfxlib module.</p>
+<p>Other NFC tag types defined by the NFC Forum include:</p>
+<h3 id="type-1-tag">Type 1 Tag</h3>
+<p>The earliest NFC tag type. Very simple. Low speed and small memory. Not common today.</p>
+<h3 id="type-3-tag">Type 3 Tag</h3>
+<p>More complex. Supports higher data rates. Originally designed for specific applications like transit cards in Japan.</p>
+<h3 id="type-5-tag">Type 5 Tag</h3>
+<p>Newer standard. Often used for long-range RFID and NFC applications. Less common in consumer devices.</p>
+<p>Table comparing the NFC Tag Types:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Tag Type</th>
+<th style="text-align: left;">Memory Size</th>
+<th style="text-align: left;">Speed</th>
+<th style="text-align: left;">Special Features</th>
+<th style="text-align: left;">Common Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">Type 1</td>
+<td style="text-align: left;">Small</td>
+<td style="text-align: left;">Slow</td>
+<td style="text-align: left;">Basic functionality, simple locking</td>
+<td style="text-align: left;">Rare today, early posters</td>
+</tr>
+<tr>
+<td style="text-align: left;">Type 2</td>
+<td style="text-align: left;">Small to Medium</td>
+<td style="text-align: left;">Medium</td>
+<td style="text-align: left;">Lightweight, flexible, widely supported</td>
+<td style="text-align: left;">Stickers, marketing, simple IoT devices</td>
+</tr>
+<tr>
+<td style="text-align: left;">Type 3</td>
+<td style="text-align: left;">Medium to Large</td>
+<td style="text-align: left;">Medium to High</td>
+<td style="text-align: left;">Complex, peer-to-peer possible</td>
+<td style="text-align: left;">Transit systems (e.g., FeliCa cards in Japan)</td>
+</tr>
+<tr>
+<td style="text-align: left;">Type 4</td>
+<td style="text-align: left;">Medium to Large</td>
+<td style="text-align: left;">High</td>
+<td style="text-align: left;">Secure messaging, encryption, smartcard support</td>
+<td style="text-align: left;">Access cards, payment prototypes</td>
+</tr>
+<tr>
+<td style="text-align: left;">Type 5</td>
+<td style="text-align: left;">Variable</td>
+<td style="text-align: left;">Medium to High</td>
+<td style="text-align: left;">Long-range NFC and RFID integration</td>
+<td style="text-align: left;">Industrial applications, asset tracking</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="ndef-nfc-data-exchange-format">NDEF: NFC Data Exchange Format</h2>
+<hr />
+<h2 id="ndef-message-and-records">NDEF Message and Records</h2>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../ble-08-whitelisting/" class="btn btn-neutral float-left" title="BLE-Whitelisting"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../ble-08-whitelisting/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
