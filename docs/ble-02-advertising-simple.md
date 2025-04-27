@@ -2,7 +2,7 @@
 
 **Author:** Tony Fu  
 **Date:** 2025/4/3  
-**Device:** nRF52840 Dongle
+**Device:** nRF52840 Dongle  
 **Toolchain:** nRF Connect SDK v2.8.0
 
 To advertise your device, you need to call `bt_le_adv_start()` with the right parameters.

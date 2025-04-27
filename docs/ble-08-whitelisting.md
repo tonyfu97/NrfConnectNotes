@@ -1,9 +1,11 @@
 # 08 - BLE Whitelisting
 
 **Author:** Tony Fu  
-**Date:** 2025/04/26  
+**Date:** 2025/04/26   
 **Device:** nRF52840 DK  
 **Toolchain:** nRF Connect SDK v3.0.0  
+
+When enabling `CONFIG_SETTINGS` on the nRF52840 Dongle, the device consistently hangs at startup. This issue occurs because the settings subsystem, by default, places the storage area (`settings_storage`) at the end of flash memory — specifically starting around address `0xFE000`. However, on the nRF52840 Dongle, the flash layout is different: it includes a pre-programmed bootloader occupying the range `0xE0000` to `0x100000` (1 MB). Since the default application build, assuming full flash usage, writes settings data into the storage partition starting at `0xFE000`, this overlaps with the bootloader region, leading to flash corruption and a non-functional device (COM port disappears, boot fails). Due to these address conflicts and the way Partition Manager auto-generates partitions, we have opted to use the nRF52840 Development Kit (DK) instead of the Dongle for this project. For further discussion on this issue and possible workarounds, refer to the open issue at [Zephyr GitHub Issue #83037](https://github.com/zephyrproject-rtos/zephyr/issues/83037).
 
 ---
 

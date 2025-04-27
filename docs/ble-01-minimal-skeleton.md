@@ -2,7 +2,7 @@
 
 **Author:** Tony Fu  
 **Date:** 2025/4/3  
-**Device:** nRF52840 Dongle
+**Device:** nRF52840 Dongle  
 **Toolchain:** nRF Connect SDK v2.8.0
 
 This example sets up the **Bluetooth stack only** — no advertising, no services, no connections. Useful as a clean starting point.

@@ -1,8 +1,8 @@
 # 06 - BLE GATT Server-Initiated Operations
 
 **Author:** Tony Fu  
-**Date:** 2025/4/6
-**Device:** nRF52840 Dongle
+**Date:** 2025/4/6  
+**Device:** nRF52840 Dongle  
 **Toolchain:** nRF Connect SDK v2.8.0
 
 Before diving into server-initiated operations like **notifications** and **indications**, it’s important to understand the layers beneath them: **ATT** and **GATT**. These layers form the foundation of BLE’s server-client communication model.

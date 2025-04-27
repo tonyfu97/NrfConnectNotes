@@ -1,8 +1,8 @@
 # 04 - BLE Connection Parameters
 
 **Author:** Tony Fu  
-**Date:** 2025/4/6
-**Device:** nRF52840 Dongle
+**Date:** 2025/4/6  
+**Device:** nRF52840 Dongle  
 **Toolchain:** nRF Connect SDK v2.8.0
 
 ## Core Connection Parameters  
