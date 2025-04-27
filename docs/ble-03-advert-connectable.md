@@ -1,5 +1,10 @@
 # 03 - BLE Advertising: Connectable
 
+**Author:** Tony Fu  
+**Date:** 2025/4/5
+**Device:** nRF52840 Dongle
+**Toolchain:** nRF Connect SDK v2.8.0
+
 To make a device connectable, we need to enable the Bluetooth peripheral role and set the advertising parameters accordingly.
 
 Add this to your `prj.conf` file:

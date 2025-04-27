@@ -1,5 +1,15 @@
 # 01 Setup nRF Connect SDK with VSCode
 
+**Author:** Tony Fu  
+**Date:** 2025/04/26  
+**Device:** nRF52840 DK  
+**Toolchain:** nRF Connect SDK v3.0.0  
+
+---
+
+
+## Setup nRF Connect SDK with VSCode
+
 I would recommend [this tutorial series](https://youtu.be/EAJdOqsL9m8?si=0kT2u3M6l1WH-PJW) for setting up the nRF Connect SDK with VSCode.
 
 
