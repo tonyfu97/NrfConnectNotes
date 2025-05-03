@@ -5,7 +5,9 @@
 **Device:** nRF52840 DK  
 **Toolchain:** nRF Connect SDK v3.0.0  
 
-When enabling `CONFIG_SETTINGS` on the nRF52840 Dongle, the device consistently hangs at startup. This issue occurs because the settings subsystem, by default, places the storage area (`settings_storage`) at the end of flash memory — specifically starting around address `0xFE000`. However, on the nRF52840 Dongle, the flash layout is different: it includes a pre-programmed bootloader occupying the range `0xE0000` to `0x100000` (1 MB). Since the default application build, assuming full flash usage, writes settings data into the storage partition starting at `0xFE000`, this overlaps with the bootloader region, leading to flash corruption and a non-functional device (COM port disappears, boot fails). Due to these address conflicts and the way Partition Manager auto-generates partitions, we have opted to use the nRF52840 Development Kit (DK) instead of the Dongle for this project. For further discussion on this issue and possible workarounds, refer to the open issue at [Zephyr GitHub Issue #83037](https://github.com/zephyrproject-rtos/zephyr/issues/83037).
+---
+
+Note that I have switched from using the nRF52840 Dongle to the nRF52840 DK for this project. This change is because `CONFIG_SETTINGS` is incompatible with the Dongle. The issue appears to be that the default storage location for the settings subsystem overlaps with the pre-programmed bootloader on the Dongle. The bootloader occupies the range `0xE0000` to `0x100000` (1 MB), while the default application build writes settings data starting at `0xFE000`, which falls within the bootloader region. This leads to flash corruption and a non-functional device (the COM port disappears, and the boot fails). Here is a [post on the Zephyr forum](https://github.com/zephyrproject-rtos/zephyr/issues/83037) that explains the issue in more detail.
 
 ---
 

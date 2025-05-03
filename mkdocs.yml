@@ -20,6 +20,7 @@ theme:
 
 nav:
     - Home: index.md
+    - Setup VSCode: setup-01-vscode.md
     - BLE-Minimal Skeleton: ble-01-minimal-skeleton.md
     - BLE-Advertising Simple: ble-02-advertising-simple.md
     - BLE-Advertising Connectable: ble-03-advert-connectable.md
@@ -28,6 +29,7 @@ nav:
     - BLE-GATT Server Operations: ble-06-gatt-server.md
     - BLE-Security Modes: ble-07-security-modes.md
     - BLE-Whitelisting: ble-08-whitelisting.md
+    - NFC-Introduction: nfc-01-simple-text.md
 
 copyright: Copyright &copy; 2025 Tony Fu
 
