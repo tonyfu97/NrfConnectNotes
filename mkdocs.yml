@@ -30,6 +30,7 @@ nav:
     - BLE-Security Modes: ble-07-security-modes.md
     - BLE-Whitelisting: ble-08-whitelisting.md
     - NFC-Introduction: nfc-01-simple-text.md
+    - NFC-Writable Tag: nfc-02-writable-tag.md
 
 copyright: Copyright &copy; 2025 Tony Fu
 
