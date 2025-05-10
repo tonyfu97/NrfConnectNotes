@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/sdk-01-uart/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>SDK-UART - nRF Connect SDK Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "SDK-UART";
+        var mkdocs_page_input_path = "sdk-01-uart.md";
+        var mkdocs_page_url = "/NrfConnectNotes/sdk-01-uart/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/django.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', "G-274394082");
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> nRF Connect SDK Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../setup-01-vscode/">Setup VSCode</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-01-minimal-skeleton/">BLE-Minimal Skeleton</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-02-advertising-simple/">BLE-Advertising Simple</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-03-advert-connectable/">BLE-Advertising Connectable</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-04-conn-params/">BLE-Connection Parameters</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-05-gatt-client/">BLE-GATT Client Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-06-gatt-server/">BLE-GATT Server Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-07-security-modes/">BLE-Security Modes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-08-whitelisting/">BLE-Whitelisting</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../nfc-01-simple-text/">NFC-Introduction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../nfc-02-writable-tag/">NFC-Writable Tag</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">SDK-UART</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#comparing-uart-access-methods-in-zephyr">Comparing UART Access Methods in Zephyr</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#whats-the-difference-between-interrupt-driven-and-asynchronous">What's the Difference Between Interrupt-Driven and Asynchronous?</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#in-action">In Action</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-1-configuration">Step 1: Configuration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-2-handle-uart-events">Step 2: Handle UART Events</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-3-create-a-uart_tx-wrapper">Step 3: Create a uart_tx wrapper</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-4-parse-commands">Step 4: Parse Commands</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-5-process-commands">Step 5: Process Commands</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#step-6-main-function">Step 6: Main Function</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">nRF Connect SDK Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">SDK-UART</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/sdk-01-uart.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="sdk-01-uart">SDK 01: UART</h1>
+<p><strong>Author:</strong> Tony Fu<br />
+<strong>Date:</strong> 2025/05/10 <br />
+<strong>Device:</strong> nRF52840 DK<br />
+<strong>Toolchain:</strong> nRF Connect SDK v3.0.0  </p>
+<hr />
+<h2 id="comparing-uart-access-methods-in-zephyr">Comparing UART Access Methods in Zephyr</h2>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>How it Works</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Polling</strong></td>
+<td>Your code checks the UART constantly (read/write one byte at a time).</td>
+<td>Simple to implement</td>
+<td>Wastes CPU time, blocks other tasks</td>
+</tr>
+<tr>
+<td><strong>Interrupt-driven</strong></td>
+<td>UART generates interrupts on TX/RX; you write ISR handlers to manage buffers.</td>
+<td>Non-blocking, better performance</td>
+<td>Requires careful buffer and state handling</td>
+</tr>
+<tr>
+<td><strong>Asynchronous</strong></td>
+<td>Built on top of interrupt-driven, but uses <strong>EasyDMA</strong> and high-level events.</td>
+<td>Most efficient, background transfer</td>
+<td>More complex API</td>
+</tr>
+</tbody>
+</table>
+<p>We will use the <strong>asynchronous</strong> method in this example.</p>
+<h3 id="whats-the-difference-between-interrupt-driven-and-asynchronous">What's the Difference Between Interrupt-Driven and Asynchronous?</h3>
+<ul>
+<li>
+<p><strong>Interrupt-driven API</strong> gives you <strong>manual control</strong>: you handle each byte in your own interrupt handlers (ISR). You must manually manage data queues or FIFOs.</p>
+</li>
+<li>
+<p><strong>Asynchronous API</strong> is <strong>higher-level</strong>: it uses interrupts under the hood but gives you events like "RX buffer ready" or "TX done". It also uses <strong>EasyDMA</strong>, which lets the UART peripheral send/receive data <strong>directly to/from memory</strong> without CPU involvement.</p>
+</li>
+</ul>
+<hr />
+<h2 id="in-action">In Action</h2>
+<p>In thie example, we will use asynchronous UART to commucate our nRF52840 DK with a PC. We have the option to send three commands from our PC terminal to the nRF52840 DK:</p>
+<ol>
+<li><strong>hello</strong>: The nRF52840 DK will respond with "Hello, world!"</li>
+<li><strong>add <num1> <num2></strong>: The nRF52840 DK will respond with the sum of the two numbers.</li>
+<li><strong>reboot</strong>: The nRF52840 DK will reboot.</li>
+</ol>
+<p>Typically, we will not use the UART directly. Instead we will use the LOG module or the CONSOLE module if we want to use the UART as a console.</p>
+<hr />
+<h2 id="step-1-configuration">Step 1: Configuration</h2>
+<p>Edit the <code>prj.conf</code> file:</p>
+<pre><code class="language-kconfig">CONFIG_GPIO=y
+CONFIG_SERIAL=y
+CONFIG_UART_ASYNC_API=y
+CONFIG_REBOOT=y
+</code></pre>
+<p>The first 3 options are required for the UART driver. The last option is required for the reboot command.</p>
+<hr />
+<h2 id="step-2-handle-uart-events">Step 2: Handle UART Events</h2>
+<p>We shall define a function with the following signature:</p>
+<pre><code class="language-c">#include &lt;zephyr/drivers/uart.h&gt;
+
+static void uart_cb(const struct device *dev, struct uart_event *evt, void *user_data)
+{
+    switch (evt-&gt;type)
+    {
+    case UART_TX_DONE:
+        // Occurs when the entire TX buffer has been sent.
+        // Typically used to clear a busy flag or start the next TX.
+        break;
+
+    case UART_TX_ABORTED:
+        // Occurs if an ongoing TX was canceled.
+        // Typically used to handle errors or retry sending.
+        break;
+
+    case UART_RX_RDY: // &lt;-- This is the event we will use
+        // Called when new data is received in the RX buffer.
+        // Typically used to read incoming bytes and process input.
+        break;
+
+    case UART_RX_BUF_REQUEST:
+        // UART driver asks for a new RX buffer when using double-buffering.
+        // Typically used to provide another buffer with uart_rx_buf_rsp().
+        break;
+
+    case UART_RX_BUF_RELEASED:
+        // Indicates a previously used RX buffer can now be reused or freed.
+        // Typically used to manage memory (e.g., recycle buffers).
+        break;
+
+    case UART_RX_DISABLED: // &lt;-- This is the event we will use
+        // RX has been disabled, either intentionally or after an error.
+        // Typically used to re-enable RX with uart_rx_enable().
+        break;
+
+    case UART_RX_STOPPED:
+        // RX stopped due to a hardware error.
+        // Typically used to report the error or reset the interface.
+        break;
+
+    default:
+        break;
+    }
+}
+</code></pre>
+<p>In our example, we will only use the <code>UART_RX_RDY</code> and <code>UART_RX_DISABLED</code> events. The <code>UART_RX_RDY</code> event is triggered when new data is received in the RX buffer. The <code>UART_RX_DISABLED</code> event is triggered at startup when our app calls <code>uart_rx_enable()</code> for the first time during <code>main()</code>, as Zephyr’s UART driver may internally transition through a disabled state.</p>
+<p>Later on in <code>main()</code>, we will call <code>uart_callback_set()</code> to set the callback function. More on this later.</p>
+<hr />
+<h2 id="step-3-create-a-uart_tx-wrapper">Step 3: Create a <code>uart_tx</code> wrapper</h2>
+<p>I noticed that if I call the <code>uart_tx()</code> function back to back without any delay between them to send the data, the second call will cause the whole program to hang. Therefore, we need to create a wrapper function to defer each call to <code>uart_tx()</code>. We will do this with a message queue and a delayed work item. Briefly, we will create a queue to hold the data to be sent, and then create a delayed work item to send the data in the queue. This also allows us to send data in a non-blocking way and add a delay between each call to <code>uart_tx()</code>.</p>
+<p>Overall, it is a good practice to defer I/O operations in the UART callback function, as it is basically an interrupt handler.</p>
+<p>We will start by defining a message queue and a delayed work item. The message queue will hold the data to be sent, and the delayed work item will send the data in the queue.</p>
+<pre><code class="language-c">#define PRINT_MSG_SIZE 128
+#define PRINT_QUEUE_SIZE 8
+
+K_MSGQ_DEFINE(print_msgq, PRINT_MSG_SIZE, PRINT_QUEUE_SIZE, 4);
+static struct k_work_delayable print_work;
+
+static void print_work_handler(struct k_work *work)
+{
+    char msg[PRINT_MSG_SIZE];
+    while (k_msgq_get(&amp;print_msgq, msg, K_NO_WAIT) == 0)
+    {
+        uart_tx(uart, (const uint8_t *)msg, strlen(msg), 100);
+        k_msleep(2);
+    }
+}
+</code></pre>
+<p>Remember to initialize the work item in <code>main()</code>:</p>
+<pre><code class="language-c">    k_work_init_delayable(&amp;print_work, print_work_handler);
+</code></pre>
+<p>Then, we can create our own <code>print()</code> function to send data to the UART. This function will add the data to the message queue and start the delayed work item.</p>
+<pre><code class="language-c">static void print(const char *str)
+{
+    if (strlen(str) &gt;= PRINT_MSG_SIZE)
+        return;
+
+    char tmp[PRINT_MSG_SIZE];
+    strcpy(tmp, str);
+
+    k_msgq_put(&amp;print_msgq, tmp, K_NO_WAIT);
+    k_work_schedule(&amp;print_work, K_MSEC(1));
+}
+</code></pre>
+<hr />
+<h2 id="step-4-parse-commands">Step 4: Parse Commands</h2>
+<p>We need to revisit our <code>uart_cb()</code> function to parse the commands. It contains a input parameter <code>struct uart_event *evt</code>, which contains the data received from the UART. Here are some important fields in the <code>struct uart_event</code>:</p>
+<ul>
+<li><code>evt-&gt;data.rx.len</code>: The length of the data received.</li>
+<li><code>evt-&gt;data.rx.offset</code>: The offset of the data received.</li>
+</ul>
+<p>So to read the data received, we need to iterate through the data from <code>evt-&gt;rx.buf[rx.offset]</code> to <code>evt-&gt;rx.buf[rx.offset+rx.len]</code>. In our case, since our receive buffer is 1 byte long, we can just read the first byte. Depending on the command received, we will call the appropriate function to handle the command.</p>
+<pre><code class="language-c">static uint8_t rx_buf[1];
+
+#define CMD_BUF_SIZE 128
+static char cmd_buf[CMD_BUF_SIZE];
+static size_t cmd_len = 0;
+
+#define PROMPT &quot;&gt; &quot;
+
+static void uart_cb(const struct device *dev, struct uart_event *evt, void *user_data)
+{
+    ARG_UNUSED(dev);
+    ARG_UNUSED(user_data);
+
+    switch (evt-&gt;type)
+    {
+    case UART_RX_RDY:
+        char c = evt-&gt;data.rx.buf[evt-&gt;data.rx.offset];
+
+        if (c == '\r' || c == '\n') // Enter key pressed
+        {
+            cmd_buf[cmd_len] = '\0';
+            process_command(cmd_buf);
+            cmd_len = 0;
+            print(PROMPT);
+        }
+        else if (c == '\b' || c == 127) // Backspace key pressed
+        {
+            if (cmd_len &gt; 0)
+            {
+                cmd_len--;
+                print(&quot;\b \b&quot;);
+            }
+        }
+        else if (isprint((unsigned char)c) &amp;&amp; cmd_len &lt; CMD_BUF_SIZE - 1) // Printable character
+        {
+            cmd_buf[cmd_len++] = c;
+            char echo[2] = {c, '\0'};
+            print(echo);
+        }
+        break;
+
+    case UART_RX_DISABLED:
+        uart_rx_enable(dev, rx_buf, sizeof(rx_buf), 100); // 100 ms timeout
+        break;
+
+    default:
+        break;
+    }
+}
+</code></pre>
+<p>Note that we also handle the <code>UART_RX_DISABLED</code> event to re-enable the RX buffer. This is important because the RX buffer is disabled after the first call to <code>uart_rx_enable()</code>. We will also need to define a <code>rx_buf</code> variable to hold the data received from the UART.</p>
+<hr />
+<h2 id="step-5-process-commands">Step 5: Process Commands</h2>
+<p>This is just a simple command processor. Not really relavent to the teaching UART, so I will not go into details.</p>
+<pre><code class="language-c">static void process_command(const char *cmd)
+{
+    if (strncmp(cmd, &quot;hello&quot;, 5) == 0)
+    {
+        print(&quot;\r\nHello, world!\r\n&quot;);
+    }
+    else if (strncmp(cmd, &quot;add &quot;, 4) == 0)
+    {
+        char cmd_copy[CMD_BUF_SIZE];
+        strncpy(cmd_copy, cmd, CMD_BUF_SIZE);
+        cmd_copy[CMD_BUF_SIZE - 1] = '\0';
+
+        char *arg1 = NULL, *arg2 = NULL, *rest = NULL;
+        arg1 = strtok_r(cmd_copy + 4, &quot; &quot;, &amp;rest);
+        arg2 = strtok_r(NULL, &quot; &quot;, &amp;rest);
+
+        if (arg1 &amp;&amp; arg2)
+        {
+            int a = strtol(arg1, NULL, 10);
+            int b = strtol(arg2, NULL, 10);
+
+            char result[32];
+            snprintf(result, sizeof(result), &quot;\r\n%d\r\n&quot;, a + b);
+            print(result);
+        }
+        else
+        {
+            print(&quot;Error: usage is add &lt;num1&gt; &lt;num2&gt;\r\n&quot;);
+        }
+    }
+    else if (strncmp(cmd, &quot;reboot&quot;, 6) == 0)
+    {
+        k_sleep(K_MSEC(100));
+        sys_reboot(SYS_REBOOT_COLD);
+    }
+    else
+    {
+        print(&quot;Unknown command\r\n&quot;);
+    }
+}
+</code></pre>
+<hr />
+<h2 id="step-6-main-function">Step 6: Main Function</h2>
+<p>Finally, we need to initialize the UART and start the RX buffer. We will also set the callback function for the UART events.</p>
+<pre><code class="language-c">static const struct device *uart;
+
+int main(void)
+{
+    k_work_init_delayable(&amp;print_work, print_work_handler);
+
+    uart = DEVICE_DT_GET(DT_NODELABEL(uart0));
+    if (!device_is_ready(uart))
+        return 0;
+
+    uart_callback_set(uart, uart_cb, NULL);
+    uart_rx_enable(uart, rx_buf, sizeof(rx_buf), 100);
+
+    print(&quot;UART CLI Ready\r\n&quot;);
+    print(PROMPT);
+
+    while (1)
+    {
+        k_sleep(K_FOREVER);
+    }
+}
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../nfc-02-writable-tag/" class="btn btn-neutral float-left" title="NFC-Writable Tag"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../nfc-02-writable-tag/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
