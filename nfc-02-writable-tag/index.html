@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/nfc-02-writable-tag/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>NFC-Writable Tag - nRF Connect SDK Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "NFC-Writable Tag";
+        var mkdocs_page_input_path = "nfc-02-writable-tag.md";
+        var mkdocs_page_url = "/NrfConnectNotes/nfc-02-writable-tag/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/django.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', "G-274394082");
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> nRF Connect SDK Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../setup-01-vscode/">Setup VSCode</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-01-minimal-skeleton/">BLE-Minimal Skeleton</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-02-advertising-simple/">BLE-Advertising Simple</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-03-advert-connectable/">BLE-Advertising Connectable</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-04-conn-params/">BLE-Connection Parameters</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-05-gatt-client/">BLE-GATT Client Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-06-gatt-server/">BLE-GATT Server Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-07-security-modes/">BLE-Security Modes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-08-whitelisting/">BLE-Whitelisting</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../nfc-01-simple-text/">NFC-Introduction</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">NFC-Writable Tag</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#nfc-tag-type-comparison-type-2-vs-type-4">NFC Tag Type Comparison (Type 2 vs Type 4)</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#in-action">In Action</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#step-1-configure-the-nfc-stack">Step 1: Configure the NFC Stack</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-2-handle-nfc-events">Step 2: Handle NFC Events</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-3-encode-ndef-message">Step 3: Encode NDEF Message</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-4-set-emulation-buffer-and-start-nfc">Step 4: Set Emulation Buffer and Start NFC</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">nRF Connect SDK Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">NFC-Writable Tag</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/nfc-02-writable-tag.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="nfc-02-writable-tag">NFC 02: Writable Tag</h1>
+<p><strong>Author:</strong> Tony Fu<br />
+<strong>Date:</strong> 2025/05/04 <br />
+<strong>Device:</strong> nRF52840 DK<br />
+<strong>Toolchain:</strong> nRF Connect SDK v3.0.0  </p>
+<hr />
+<h2 id="nfc-tag-type-comparison-type-2-vs-type-4">NFC Tag Type Comparison (Type 2 vs Type 4)</h2>
+<p>In this example, we will use our phone to write data to the NFC tag. We need to use type 4 tag for this purpose. The nRF Connect SDK allows us to use both type 2 and type 4 tags. The table below summarizes the differences between the two types of tags:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th><strong>Type 2 Tag</strong></th>
+<th><strong>Type 4 Tag</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Writability by phone</strong></td>
+<td>❌ <em>Not supported (in Nordic SDK)</em></td>
+<td>✅ <em>Fully supported</em></td>
+</tr>
+<tr>
+<td><strong>Read support</strong></td>
+<td>✅ Yes</td>
+<td>✅ Yes</td>
+</tr>
+<tr>
+<td><strong>Data update method</strong></td>
+<td>Static; updated via firmware or internal logic only</td>
+<td>Dynamic; data written via NFC (e.g., from phone)</td>
+</tr>
+<tr>
+<td><strong>Storage backend</strong></td>
+<td>No file system (raw TLV structure in RAM)</td>
+<td>NDEF file with internal length and control structure</td>
+</tr>
+<tr>
+<td><strong>File system support</strong></td>
+<td>❌ None</td>
+<td>✅ Uses NDEF file abstraction</td>
+</tr>
+<tr>
+<td><strong>Authentication</strong></td>
+<td>❌ Not supported</td>
+<td>✅ Optional (ISO 7816-style command sets)</td>
+</tr>
+<tr>
+<td><strong>Tag activation</strong></td>
+<td>Type 2 Tag protocol</td>
+<td>ISO/IEC 14443-4 (APDU protocol)</td>
+</tr>
+<tr>
+<td><strong>Library used (nRF SDK)</strong></td>
+<td><code>nfc_t2t_lib</code></td>
+<td><code>nfc_t4t_lib</code></td>
+</tr>
+<tr>
+<td><strong>Use case</strong></td>
+<td>Simple, static read-only tags (e.g., fixed URLs)</td>
+<td>Smart cards, writable business cards, secure access</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="in-action">In Action</h2>
+<p>This example demonstrates how to create and emulate a writable NFC Type 4 Tag using the nRF Connect SDK. It builds a simple NDEF text message with the payload <code>"42"</code>, sets up an emulation buffer, starts NFC communication, and handles basic tag events such as read, write, and field detection.</p>
+<hr />
+<h3 id="step-1-configure-the-nfc-stack">Step 1: Configure the NFC Stack</h3>
+<p>Just like the previous example, we need to enable the NFC stack in the <code>prj.conf</code> file. The only difference is that we need to enable the <code>CONFIG_NFC_T4T_NRFXLIB</code> option to use the type 4 tag.</p>
+<pre><code class="language-kconfig"># NFC Type 4 Support
+CONFIG_NFC_T4T_NRFXLIB=y
+
+# NFC NDEF (High-Level Message Encoding)
+CONFIG_NFC_NDEF=y
+CONFIG_NFC_NDEF_MSG=y
+CONFIG_NFC_NDEF_RECORD=y
+CONFIG_NFC_NDEF_TEXT_RECORD=y
+</code></pre>
+<hr />
+<h3 id="step-2-handle-nfc-events">Step 2: Handle NFC Events</h3>
+<p>Just like the previous example, we need to handle NFC events in the main loop</p>
+<pre><code class="language-c">#include &lt;nfc_t4t_lib.h&gt;
+
+static void tag_event_handler(void *ctx, nfc_t4t_event_t evt,
+                              const uint8_t *data, size_t len, uint32_t flags)
+{
+    ARG_UNUSED(ctx);
+    ARG_UNUSED(data);
+    ARG_UNUSED(flags);
+
+    switch (evt)
+    {
+    case NFC_T4T_EVENT_FIELD_ON:
+        printk(&quot;Reader present\n&quot;);
+        break;
+    case NFC_T4T_EVENT_FIELD_OFF:
+        printk(&quot;Reader removed\n&quot;);
+        break;
+    case NFC_T4T_EVENT_NDEF_READ:
+        printk(&quot;Message read\n&quot;);
+        break;
+    case NFC_T4T_EVENT_NDEF_UPDATED:
+        printk(&quot;Message updated (%d bytes)\n&quot;, len);
+        break;
+    default:
+        break;
+    }
+}
+</code></pre>
+<p>and later in main we can register this handler with the NFC stack:</p>
+<pre><code class="language-c">int main(void)
+{
+    // More code not shown here...
+    if (nfc_t4t_setup(tag_event_handler, NULL) &lt; 0)
+    {
+        printk(&quot;Error: NFC setup failed\n&quot;);
+        return -1;
+    }
+    // More code not shown here...
+}
+</code></pre>
+<hr />
+<h3 id="step-3-encode-ndef-message">Step 3: Encode NDEF Message</h3>
+<p>Next, we encode the NDEF message. The example below creates a text record with the payload <code>"42"</code> and language code <code>"en"</code>:</p>
+<pre><code class="language-c">static int create_text_payload(uint8_t *buf, uint32_t *len)
+{
+    /* Define a text record with language code &quot;en&quot; and payload &quot;42&quot; */
+    NFC_NDEF_TEXT_RECORD_DESC_DEF(txt_rec,
+            UTF_8,
+            &quot;en&quot;, 2,
+            &quot;42&quot;, 2);
+
+    NFC_NDEF_MSG_DEF(msg, 1);
+
+    int err = nfc_ndef_msg_record_add(&amp;NFC_NDEF_MSG(msg),
+            &amp;NFC_NDEF_TEXT_RECORD_DESC(txt_rec));
+    if (err &lt; 0)
+    {
+        return err;
+    }
+
+    uint32_t used = *len;
+    err = nfc_ndef_msg_encode(&amp;NFC_NDEF_MSG(msg),
+            nfc_t4t_ndef_file_msg_get(buf),
+            &amp;used);
+    if (err &lt; 0)
+    {
+        return err;
+    }
+
+    err = nfc_t4t_ndef_file_encode(buf, &amp;used);
+    if (err &lt; 0)
+    {
+        return err;
+    }
+
+    *len = used;
+    return 0;
+}
+</code></pre>
+<p>This is similar to the earlier example using T2T, but here in additionally we use <code>nfc_t4t_ndef_file_msg_get</code> to retrieve the buffer where the encoded NDEF message should be stored. This function provides access to the internal buffer structure used by T4T formatting.</p>
+<p>The final step uses <code>nfc_t4t_ndef_file_encode</code>, which wraps the encoded message in the full T4T NDEF file format. This is required because a Type 4 Tag expects the NDEF data to follow a specific structure.</p>
+<ul>
+<li><code>file_buf</code>: A pointer to the output buffer that will hold the fully formatted NDEF file.</li>
+<li><code>size</code>: A pointer to a variable that initially holds the buffer size and returns the actual size used after encoding.</li>
+</ul>
+<p>This function is essential to ensure the message conforms to the T4T specification and can be read by NFC readers that support this format.</p>
+<p>Later on, we will call this function to encode the NDEF message and write it to the NFC tag:</p>
+<pre><code class="language-c">#define NFC_MEM_SIZE 256
+static uint8_t nfc_mem[NFC_MEM_SIZE];
+
+main()
+{
+    uint32_t ndef_len = NFC_MEM_SIZE;
+    if (create_text_payload(nfc_mem, &amp;ndef_len) &lt; 0)
+    {
+        printk(&quot;Error: failed to build initial message\n&quot;);
+        return -1;
+    }
+
+    if (nfc_t4t_setup(tag_event_handler, NULL) &lt; 0)
+    {
+        printk(&quot;Error: NFC setup failed\n&quot;);
+        return -1;
+    }
+
+    // More code not shown here...
+}
+</code></pre>
+<hr />
+<h3 id="step-4-set-emulation-buffer-and-start-nfc">Step 4: Set Emulation Buffer and Start NFC</h3>
+<p>Before starting NFC communication, we must configure the buffer that holds the NDEF data and then activate the NFC emulation.</p>
+<pre><code class="language-c">if (nfc_t4t_ndef_rwpayload_set(nfc_mem, NFC_MEM_SIZE) &lt; 0)
+{
+    printk(&quot;Error: cannot set buffer\n&quot;);
+    return -1;
+}
+
+if (nfc_t4t_emulation_start() &lt; 0)
+{
+    printk(&quot;Error: emulation failed\n&quot;);
+    return -1;
+}
+</code></pre>
+<p>The first function, <code>nfc_t4t_ndef_rwpayload_set</code>, sets the buffer used for emulating a read/write NDEF tag. This buffer must remain accessible for as long as the emulation is active. It will be updated if an external NFC reader modifies the content. You must ensure the buffer length is consistent across updates, and it should not be the same memory currently in use.</p>
+<ul>
+<li><code>nfc_mem</code>: A pointer to the buffer that stores the NDEF content.</li>
+<li><code>NFC_MEM_SIZE</code>: The size of this buffer in bytes.</li>
+</ul>
+<p>The second function, <code>nfc_t4t_emulation_start</code>, activates the NFC frontend. This must be called after the payload buffer is set. Once started, NFC events (like reads or writes) will be handled by the NFC stack and delivered to the application callback.</p>
+<p>These calls are essential to make the device appear as a writable NFC Type 4 Tag to external readers.</p>
+<p>In the end, the main function looks like this:</p>
+<pre><code class="language-c">int main(void)
+{
+    printk(&quot;NFC tag init\n&quot;);
+
+    uint32_t ndef_len = NFC_MEM_SIZE;
+    if (create_text_payload(nfc_mem, &amp;ndef_len) &lt; 0)
+    {
+        printk(&quot;Error: failed to build initial message\n&quot;);
+        return -1;
+    }
+
+    if (nfc_t4t_setup(tag_event_handler, NULL) &lt; 0)
+    {
+        printk(&quot;Error: NFC setup failed\n&quot;);
+        return -1;
+    }
+
+    if (nfc_t4t_ndef_rwpayload_set(nfc_mem, NFC_MEM_SIZE) &lt; 0)
+    {
+        printk(&quot;Error: cannot set buffer\n&quot;);
+        return -1;
+    }
+
+    if (nfc_t4t_emulation_start() &lt; 0)
+    {
+        printk(&quot;Error: emulation failed\n&quot;);
+        return -1;
+    }
+
+    printk(&quot;Tag is writable. Waiting...\n&quot;);
+    while (1)
+    {
+        k_sleep(K_FOREVER);
+    }
+}
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../nfc-01-simple-text/" class="btn btn-neutral float-left" title="NFC-Introduction"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../nfc-01-simple-text/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
