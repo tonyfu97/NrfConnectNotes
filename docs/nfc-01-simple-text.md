@@ -1,4 +1,4 @@
-# NRF 01: Introduction to NFC
+# NFC 01: Introduction to NFC
 
 **Author:** Tony Fu  
 **Date:** 2025/04/27  
