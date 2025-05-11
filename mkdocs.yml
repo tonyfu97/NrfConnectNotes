@@ -33,6 +33,7 @@ nav:
     - NFC-Writable Tag: nfc-02-writable-tag.md
     - SDK-UART: sdk-01-uart.md
     - OS-Basic: os-01-basic.md
+    - OS-Workqueue: os-02-workqueue.md
 
 copyright: Copyright &copy; 2025 Tony Fu
 
