@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/os-01-basic/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>OS-Basic - nRF Connect SDK Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "OS-Basic";
+        var mkdocs_page_input_path = "os-01-basic.md";
+        var mkdocs_page_url = "/NrfConnectNotes/os-01-basic/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/django.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', "G-274394082");
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> nRF Connect SDK Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../setup-01-vscode/">Setup VSCode</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-01-minimal-skeleton/">BLE-Minimal Skeleton</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-02-advertising-simple/">BLE-Advertising Simple</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-03-advert-connectable/">BLE-Advertising Connectable</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-04-conn-params/">BLE-Connection Parameters</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-05-gatt-client/">BLE-GATT Client Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-06-gatt-server/">BLE-GATT Server Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-07-security-modes/">BLE-Security Modes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-08-whitelisting/">BLE-Whitelisting</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../nfc-01-simple-text/">NFC-Introduction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../nfc-02-writable-tag/">NFC-Writable Tag</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../sdk-01-uart/">SDK-UART</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">OS-Basic</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#zephyr-thread-states">Zephyr Thread States</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example:</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#simplified-view-as-used-in-nordics-nrf-connect-sdk-course">Simplified View (as used in Nordic's nRF Connect SDK course)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#thread-priority-in-zephyr">Thread Priority in Zephyr</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#rescheduling-points-in-zephyr">Rescheduling Points in Zephyr</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#common-rescheduling-triggers">Common rescheduling triggers:</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#time-slicing-in-zephyr">Time Slicing in Zephyr</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#how-it-works">How it works:</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#key-points">Key points:</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#creating-threads-in-zephyr">Creating Threads in Zephyr</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#why-the-k_-prefix">Why the k_ Prefix?</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#basic-thread-creation-example">Basic Thread Creation Example</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#explanation-of-k_thread_create">Explanation of k_thread_create()</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#results">Results</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">nRF Connect SDK Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">OS-Basic</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/os-01-basic.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="os-01-basics">OS 01: Basics</h1>
+<p><strong>Author:</strong> Tony Fu<br />
+<strong>Date:</strong> 2025/05/11 <br />
+<strong>Device:</strong> nRF52840 DK<br />
+<strong>Toolchain:</strong> nRF Connect SDK v3.0.0  </p>
+<hr />
+<h2 id="zephyr-thread-states"><strong>Zephyr Thread States</strong></h2>
+<p>In Zephyr RTOS, each thread's status is represented internally as a <strong>bitmask</strong> field (<code>thread_state</code>) within the thread structure. This allows a thread to simultaneously hold multiple state flags, enabling nuanced control and scheduling decisions. The states are decoded by functions like <code>k_thread_state_str()</code>, which interpret and format these bit flags into readable strings.</p>
+<p>Below is a summary of the known internal thread states:</p>
+<ul>
+<li><strong>DUMMY</strong>: The thread structure is not associated with an actual thread. Often used for initialization or placeholders.</li>
+<li><strong>PENDING</strong>: The thread is waiting for a resource (e.g., semaphore, mutex, queue). It is not ready to run.</li>
+<li><strong>PRESTART</strong>: The thread has been created but not yet started (i.e., <code>k_thread_start()</code> hasn’t been called).</li>
+<li><strong>DEAD</strong>: The thread has terminated and is no longer active.</li>
+<li><strong>SUSPENDED</strong>: The thread has been explicitly suspended and cannot run until resumed.</li>
+<li><strong>ABORTING</strong>: The thread is in the process of being aborted (usually via <code>k_thread_abort()</code>).</li>
+<li><strong>SUSPENDING</strong>: The thread is transitioning into the suspended state.</li>
+<li><strong>QUEUED</strong>: The thread is queued in an object (e.g., waiting in a FIFO or work queue).</li>
+</ul>
+<p>These states are <strong>not mutually exclusive</strong>. A thread can, and often does, hold more than one state flag at the same time. The system uses these combinations to precisely reflect what is happening with the thread at any given moment.</p>
+<h3 id="example"><strong>Example</strong>:</h3>
+<p>A thread waiting on a queue and also marked for suspension could have the state:</p>
+<pre><code>PENDING + SUSPENDING
+</code></pre>
+<p>This indicates that the thread is waiting for data and, simultaneously, in the process of being suspended.</p>
+<h3 id="simplified-view-as-used-in-nordics-nrf-connect-sdk-course"><strong>Simplified View (as used in Nordic's nRF Connect SDK course)</strong></h3>
+<p>To make the model more digestible, Nordic classifies threads into just three broad states:</p>
+<table>
+<thead>
+<tr>
+<th><strong>Course State</strong></th>
+<th><strong>Meaning</strong></th>
+<th><strong>Internal Representation</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Running</strong></td>
+<td>Actively executing on the CPU.</td>
+<td>Not stored in <code>thread_state</code>, but implied by the scheduler.</td>
+</tr>
+<tr>
+<td><strong>Runnable</strong></td>
+<td>Ready to run, only waiting for CPU time.</td>
+<td>Internally: <code>thread_state == 0</code> (no flags set)</td>
+</tr>
+<tr>
+<td><strong>Non-runnable</strong></td>
+<td>Blocked, suspended, or otherwise ineligible to run.</td>
+<td>Any combination of internal flags like <code>PENDING</code>, <code>SUSPENDED</code>, etc.</td>
+</tr>
+</tbody>
+</table>
+<p>This simplification omits internal transitions and overlaps for the sake of clarity, especially when teaching fundamentals. However, understanding the bitmask-based system helps when debugging or implementing lower-level scheduling logic.</p>
+<hr />
+<h2 id="thread-priority-in-zephyr"><strong>Thread Priority in Zephyr</strong></h2>
+<p>In Zephyr, each thread is assigned an integer priority. Lower numbers indicate higher priority. For example, a thread with priority <code>2</code> will run before one with priority <code>5</code>.</p>
+<p>Zephyr distinguishes between two types of threads based on priority:</p>
+<ul>
+<li><strong>Preemptible threads</strong>: These have <strong>non-negative priorities</strong> (<code>0</code> and up). They can be interrupted by other threads of <strong>equal or higher</strong> priority.</li>
+<li><strong>Cooperative threads</strong>: These use <strong>negative priorities</strong> and <strong>cannot be preempted</strong>. Once running, they keep the CPU until they yield or block.</li>
+</ul>
+<p>The default configuration allows:</p>
+<ul>
+<li><strong>15 preemptible levels</strong>, from <code>0</code> (high) to <code>15</code> (low, used by the idle thread).</li>
+<li><strong>16 cooperative levels</strong>, from <code>-1</code> down to <code>-16</code>.</li>
+</ul>
+<p>Preemptible threads are the norm; cooperative threads are used rarely and typically not covered in beginner material.</p>
+<hr />
+<h2 id="rescheduling-points-in-zephyr"><strong>Rescheduling Points in Zephyr</strong></h2>
+<p>Zephyr is a <strong>tickless, event-driven RTOS</strong>, meaning the scheduler runs only when needed—not on a fixed timer. A <strong>rescheduling point</strong> is any moment when the scheduler is invoked to reconsider which thread should run next. This happens whenever the <strong>state of the Ready queue changes</strong>.</p>
+<h3 id="common-rescheduling-triggers"><strong>Common rescheduling triggers:</strong></h3>
+<ul>
+<li>A thread calls <code>k_yield()</code>: its state changes from <code>Running</code> to <code>Ready</code>.</li>
+<li>A thread becomes unready (e.g., when calling <code>k_sleep()</code>): its state changes from <code>Running</code> to <code>Non-runnable</code>.</li>
+<li>A blocked thread is unblocked by a sync object (e.g., semaphore, mutex): its state becomes <code>Ready</code>.</li>
+<li>A thread waiting for data receives input: its state transitions to <code>Ready</code>.</li>
+<li><strong>Time slicing</strong> is enabled and the current thread exceeds its allowed slice: it's moved from <code>Running</code> to <code>Ready</code>.</li>
+</ul>
+<p>These transitions prompt the scheduler to re-evaluate which thread to run based on priority and readiness.</p>
+<hr />
+<h2 id="time-slicing-in-zephyr"><strong>Time Slicing in Zephyr</strong></h2>
+<p><strong>Time slicing</strong> allows threads of the <strong>same (non-negative)</strong> priority to share CPU time in a <strong>round-robin</strong> fashion.</p>
+<h3 id="how-it-works"><strong>How it works:</strong></h3>
+<ul>
+<li>You configure a <strong>time slice duration</strong> using <code>CONFIG_TIMESLICE_SIZE</code>.</li>
+<li>If enabled, each <strong>preemptible</strong> thread (priority ≥ 0) gets up to that amount of time before being moved back to the Ready queue.</li>
+<li>This lets other threads of <strong>equal priority</strong> run in turn.</li>
+<li>This prevents a single thread from monopolizing the CPU, especially in when it provides no explicit rescheduling points.</li>
+</ul>
+<h3 id="key-points"><strong>Key points:</strong></h3>
+<ul>
+<li>Only applies to <strong>preemptible threads</strong> (non-negative priority).</li>
+<li><strong>Cooperative threads</strong> (negative priority) are <strong>not affected</strong> by time slicing—they must yield explicitly.</li>
+<li>Time slicing does <strong>not override</strong> priority. Higher-priority threads always preempt lower-priority ones, regardless of time slices.</li>
+</ul>
+<hr />
+<h2 id="creating-threads-in-zephyr"><strong>Creating Threads in Zephyr</strong></h2>
+<p>To work with threads in Zephyr, include the core kernel API header:</p>
+<pre><code class="language-c">#include &lt;zephyr/kernel.h&gt;
+</code></pre>
+<p>This gives access to thread management functions, synchronization primitives, and timing utilities.</p>
+<h3 id="why-the-k_-prefix"><strong>Why the <code>k_</code> Prefix?</strong></h3>
+<p>Zephyr uses the <code>k_</code> prefix to mark functions, types, and macros that are part of the <strong>kernel API</strong>. This naming convention makes it clear that you're working with internal kernel mechanisms, helping distinguish them from application-level symbols.</p>
+<hr />
+<h2 id="basic-thread-creation-example"><strong>Basic Thread Creation Example</strong></h2>
+<p>Here’s an example that defines two threads. Each prints a message and displays the current state of both threads. Notice that even though the threads are created in runtime, their stack space is allocated at compile time.</p>
+<pre><code class="language-c">#include &lt;zephyr/kernel.h&gt;
+#include &lt;zephyr/sys/printk.h&gt;
+
+#define STACK_SIZE 512
+#define PRIORITY 5
+
+K_THREAD_STACK_DEFINE(thread1_stack, STACK_SIZE);
+K_THREAD_STACK_DEFINE(thread2_stack, STACK_SIZE);
+
+struct k_thread thread1_data;
+struct k_thread thread2_data;
+
+void thread1_entry(void *p1, void *p2, void *p3);
+void thread2_entry(void *p1, void *p2, void *p3);
+
+struct k_thread *t1_ptr = &amp;thread1_data;
+struct k_thread *t2_ptr = &amp;thread2_data;
+</code></pre>
+<p>Each thread runs a loop, prints a message, and inspects thread states:</p>
+<pre><code class="language-c">void thread1_entry(void *p1, void *p2, void *p3)
+{
+    while (1) {
+        printk(&quot;Thread 1 says hello!\n&quot;);
+        char buf[32];
+        printk(&quot;Thread 1 state: %s\n&quot;, k_thread_state_str(t1_ptr, buf, sizeof(buf)));
+        printk(&quot;Thread 2 state: %s\n&quot;, k_thread_state_str(t2_ptr, buf, sizeof(buf)));
+        k_sleep(K_MSEC(1000));
+    }
+}
+
+void thread2_entry(void *p1, void *p2, void *p3)
+{
+    while (1) {
+        printk(&quot;Thread 2 reporting in.\n&quot;);
+        char buf[32];
+        printk(&quot;Thread 1 state: %s\n&quot;, k_thread_state_str(t1_ptr, buf, sizeof(buf)));
+        printk(&quot;Thread 2 state: %s\n&quot;, k_thread_state_str(t2_ptr, buf, sizeof(buf)));
+        k_sleep(K_MSEC(1000));
+    }
+}
+</code></pre>
+<p>Threads are created in the <code>main()</code> function using <code>k_thread_create()</code>:</p>
+<pre><code class="language-c">void main(void)
+{
+    k_thread_create(&amp;thread1_data, thread1_stack,
+                    STACK_SIZE, thread1_entry,
+                    NULL, NULL, NULL,
+                    PRIORITY, 0, K_NO_WAIT);
+
+    k_thread_create(&amp;thread2_data, thread2_stack,
+                    STACK_SIZE, thread2_entry,
+                    NULL, NULL, NULL,
+                    PRIORITY, 0, K_NO_WAIT);
+
+    printk(&quot;Main thread done launching threads.\n&quot;);
+}
+</code></pre>
+<hr />
+<h3 id="explanation-of-k_thread_create"><strong>Explanation of <code>k_thread_create()</code></strong></h3>
+<pre><code class="language-c">k_tid_t k_thread_create(
+    struct k_thread *new_thread,
+    k_thread_stack_t *stack,
+    size_t stack_size,
+    k_thread_entry_t entry,
+    void *p1, void *p2, void *p3,
+    int prio,
+    uint32_t options,
+    k_timeout_t delay);
+</code></pre>
+<ul>
+<li><code>new_thread</code>: Pointer to a <code>k_thread</code> struct used for tracking the thread.</li>
+<li><code>stack</code>: Pointer to stack memory defined with <code>K_THREAD_STACK_DEFINE()</code>.</li>
+<li><code>stack_size</code>: Must match the size used when defining the stack.</li>
+<li><code>entry</code>: Function to run when the thread starts.</li>
+<li><code>p1–p3</code>: Optional arguments passed to the thread entry function.</li>
+<li><code>prio</code>: Thread priority. Lower values mean higher priority.</li>
+<li><code>options</code>: Architecture-specific flags; use <code>0</code> for basic threads.</li>
+<li><code>delay</code>: Use <code>K_NO_WAIT</code> to start immediately, or a timeout for delayed start.</li>
+</ul>
+<hr />
+<h2 id="results">Results</h2>
+<p>When you run the code, you should see output similar to this:</p>
+<pre><code>Thread 1 state: sleeping
+Thread 2 state: queued
+Thread 1 says hello!
+Thread 1 state: queued
+Thread 2 state: sleeping
+Thread 2 reporting in.
+Thread 1 state: sleeping
+Thread 2 state: queued
+Thread 1 says hello!
+Thread 1 state: queued
+Thread 2 state: sleeping
+Thread 2 reporting in.
+</code></pre>
+<p>This output shows the state of each thread as they run. The states will change based on the actions taken by each thread and the scheduler's decisions.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../sdk-01-uart/" class="btn btn-neutral float-left" title="SDK-UART"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../sdk-01-uart/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
