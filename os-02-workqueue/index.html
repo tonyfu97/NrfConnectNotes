@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/setup-02-prj-conf-trick/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/os-02-workqueue/" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Setup 02: How to know what to put in prj.conf? - nRF Connect SDK Notes</title>
+    <title>OS-Workqueue - nRF Connect SDK Notes</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Setup 02: How to know what to put in prj.conf?";
-        var mkdocs_page_input_path = "setup-02-prj-conf-trick.md";
-        var mkdocs_page_url = "/NrfConnectNotes/setup-02-prj-conf-trick/";
+        var mkdocs_page_name = "OS-Workqueue";
+        var mkdocs_page_input_path = "os-02-workqueue.md";
+        var mkdocs_page_url = "/NrfConnectNotes/os-02-workqueue/";
       </script>
     
     <!--[if lt IE 9]>
@@ -105,8 +105,30 @@
                 <li class="toctree-l1"><a class="reference internal" href="../os-01-basic/">OS-Basic</a>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../os-02-workqueue/">OS-Workqueue</a>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">OS-Workqueue</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#types-of-threads">Types of Threads</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-system-threads">1. System Threads</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-user-defined-threads">2. User-Defined Threads</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-workqueue-threads">3. Workqueue Threads</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#in-action">In Action</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-declare-a-work-item">1. Declare a Work Item</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-define-the-work-handler">2. Define the Work Handler</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-initialize-and-submit-the-work-item">3. Initialize and Submit the Work Item</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
                 </li>
               </ul>
       </div>
@@ -123,9 +145,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Setup 02: How to know what to put in prj.conf?</li>
+      <li class="breadcrumb-item active">OS-Workqueue</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/setup-02-prj-conf-trick.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/os-02-workqueue.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -133,16 +155,71 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="setup-02-how-to-know-what-to-put-in-prjconf">Setup 02: How to know what to put in prj.conf?</h1>
+                <h1 id="os-02-workqueue">OS 02: Workqueue</h1>
+<p><strong>Author:</strong> Tony Fu<br />
+<strong>Date:</strong> 2025/05/11 <br />
+<strong>Device:</strong> nRF52840 DK<br />
+<strong>Toolchain:</strong> nRF Connect SDK v3.0.0  </p>
+<hr />
+<h2 id="types-of-threads">Types of Threads</h2>
+<p>In Zephyr RTOS, threads are the primary units of execution. There are three main categories you’ll encounter: <strong>system threads</strong>, <strong>user-defined threads</strong>, and <strong>workqueue threads</strong>. Each serves a distinct purpose in managing how work is scheduled and executed.</p>
+<hr />
+<h3 id="1-system-threads">1. System Threads</h3>
+<p>System threads are created automatically by Zephyr during system startup. Two are always present:</p>
 <ul>
-<li>Consult sample code</li>
-<li>Check Kconfig files</li>
-<li>Check online documentation</li>
-<li>Work backwards from the function(s) you want to use to the Kconfig options that enable them</li>
+<li>
+<p><strong>Main thread</strong>: After basic kernel setup, this thread runs the application’s <code>main()</code> function. If no <code>main()</code> is defined, the thread simply exits once initialization is complete, and the system continues running.</p>
+</li>
+<li>
+<p><strong>Idle thread</strong>: When no other threads are ready to run, the idle thread takes over. It typically enters a low-power state to conserve energy, especially on platforms like Nordic’s nRF series.</p>
+</li>
 </ul>
+<p>These threads ensure the RTOS is always operational, even with no application-specific threads running.</p>
+<hr />
+<h3 id="2-user-defined-threads">2. User-Defined Threads</h3>
+<p>We as developers can define additional threads to structure our application logic using <code>k_thread_create()</code>. Each thread runs independently and is assigned a priority to control scheduling.</p>
+<hr />
+<h3 id="3-workqueue-threads">3. Workqueue Threads</h3>
+<p>A <strong>workqueue thread</strong> processes lightweight tasks called <strong>work items</strong>. A work item is simply a function submitted to a queue, typically from an interrupt or high-priority context. The workqueue thread executes these functions in the order they were received (FIFO).</p>
+<p>Zephyr includes a <strong>system workqueue</strong> by default. You can submit work items to it without creating a custom workqueue. The thread backing the system workqueue is itself a system thread. In this example, we will try using the system workqueue to process a simple task.</p>
+<hr />
+<h2 id="in-action">In Action</h2>
+<p>This example demonstrates how to use the <strong>default system workqueue</strong> in Zephyr to offload a non-urgent task. The work item runs in a separate thread managed by the kernel, which helps prevent blocking the main thread or higher-priority contexts.</p>
+<hr />
+<h3 id="1-declare-a-work-item">1. Declare a Work Item</h3>
+<pre><code class="language-c">static struct k_work my_work;
+</code></pre>
+<p>This defines a <strong>work item structure</strong>. It's a lightweight object used to represent a unit of deferred work. The system workqueue will call a user-defined function (<code>work_handler</code>) when this work item is processed.</p>
+<hr />
+<h3 id="2-define-the-work-handler">2. Define the Work Handler</h3>
+<pre><code class="language-c">void work_handler(struct k_work *work)
+{
+    printk(&quot;Work handler running in system workqueue.\n&quot;);
+
+    for (volatile int i = 0; i &lt; 5000000; i++);  // Simulated delay
+
+    printk(&quot;Work handler done.\n&quot;);
+}
+</code></pre>
+<p>This function will be executed by the <strong>system workqueue thread</strong>, not the main thread. It simulates a time-consuming task using a busy loop.</p>
+<hr />
+<h3 id="3-initialize-and-submit-the-work-item">3. Initialize and Submit the Work Item</h3>
+<p>Now we initialize a work item and associates it with a handler function:</p>
+<pre><code class="language-c">void main(void)
+{
+    printk(&quot;Main thread started.\n&quot;);
+
+    k_work_init(&amp;my_work, work_handler);
+</code></pre>
+<p>and later submit it to the system workqueue:</p>
+<pre><code class="language-c">    k_work_submit(&amp;my_work);
+</code></pre>
               
             </div>
           </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../os-01-basic/" class="btn btn-neutral float-left" title="OS-Basic"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
 
   <hr/>
 
@@ -168,6 +245,8 @@
           <a href="https://github.com/tonyfu97/NrfConnectNotes" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
         </span>
     
+    
+      <span><a href="../os-01-basic/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
   </span>
