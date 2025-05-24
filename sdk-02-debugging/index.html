@@ -3,18 +3,18 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/setup-01-vscode/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/sdk-02-debugging/" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Setup-VSCode - nRF Connect SDK Notes</title>
+    <title>SDK-Debugging - nRF Connect SDK Notes</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Setup-VSCode";
-        var mkdocs_page_input_path = "setup-01-vscode.md";
-        var mkdocs_page_url = "/NrfConnectNotes/setup-01-vscode/";
+        var mkdocs_page_name = "SDK-Debugging";
+        var mkdocs_page_input_path = "sdk-02-debugging.md";
+        var mkdocs_page_url = "/NrfConnectNotes/sdk-02-debugging/";
       </script>
     
     <!--[if lt IE 9]>
@@ -53,14 +53,8 @@
                 <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
                 </li>
               </ul>
-              <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Setup-VSCode</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#setup-nrf-connect-sdk-with-vscode">Setup nRF Connect SDK with VSCode</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#nrfutil">nrfutil</a>
-    </li>
-    </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../setup-01-vscode/">Setup-VSCode</a>
                 </li>
               </ul>
               <ul>
@@ -107,8 +101,26 @@
                 <li class="toctree-l1"><a class="reference internal" href="../sdk-01-uart/">SDK-UART</a>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../sdk-02-debugging/">SDK-Debugging</a>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">SDK-Debugging</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#in-action">In Action</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#step-1-enable-debugging">Step 1: Enable Debugging</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-2-set-breakpoints">Step 2: Set Breakpoints</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-3-add-variables-to-watch">Step 3: Add Variables to Watch</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-4-start-debugging">Step 4: Start Debugging</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-5-play-with-the-thread-viewer">Step 5: Play with the Thread Viewer</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-6-manually-toggle-leds">Step 6: Manually Toggle LEDs</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
                 </li>
               </ul>
               <ul>
@@ -137,9 +149,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Setup-VSCode</li>
+      <li class="breadcrumb-item active">SDK-Debugging</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/setup-01-vscode.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/sdk-02-debugging.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -147,42 +159,61 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="01-setup-nrf-connect-sdk-with-vscode">01 Setup nRF Connect SDK with VSCode</h1>
+                <h1 id="sdk-02-debugging-tips">SDK 02: Debugging Tips</h1>
 <p><strong>Author:</strong> Tony Fu<br />
-<strong>Date:</strong> 2025/04/26<br />
+<strong>Date:</strong> 2025/05/24<br />
 <strong>Device:</strong> nRF52840 DK<br />
 <strong>Toolchain:</strong> nRF Connect SDK v3.0.0  </p>
 <hr />
-<h2 id="setup-nrf-connect-sdk-with-vscode">Setup nRF Connect SDK with VSCode</h2>
-<p>I would recommend <a href="https://youtu.be/EAJdOqsL9m8?si=0kT2u3M6l1WH-PJW">this tutorial series</a> for setting up the nRF Connect SDK with VSCode.</p>
+<p>I recommend watching <a href="https://youtu.be/IDC2m91xMb0?si=U4wxxo3WKrAcScap">this video</a> for a quick overview of debugging in the SDK.</p>
 <hr />
-<h2 id="nrfutil">nrfutil</h2>
-<p>To my suprise, the VSCode extension (and the toolchain that it install) did not include the <code>nrfutil</code> package. This is required for flashing the firmware. Without it, the "flash" action button of the VSCode extension will not work.</p>
-<p>Simply head to <a href="https://www.nordicsemi.com/Products/Development-tools/nRF-Util">this website</a> and download the latest version of <code>nrfutil</code>. Then add it to your PATH. Open a terminal and run the following command to see what commands are available:</p>
-<pre><code class="language-bash">nrfutil search
+<h2 id="in-action">In Action</h2>
+<p>We are doing to use part of the code from the <a href="../os-03-semaphore-mutex/">OS-03: Semaphores and Mutexes</a> example. This code has two threads that increment a counter with mutex protection. The code is as follows.</p>
+<h3 id="step-1-enable-debugging">Step 1: Enable Debugging</h3>
+<p>We need to enable debugging in the <code>prj.conf</code> file. Add the following lines to enable debugging features:</p>
+<pre><code class="language-kconfig">CONFIG_DEBUG_THREAD_INFO=y
+CONFIG_DEBUG_OPTIMIZATIONS=y
 </code></pre>
-<p>You should see something like this:</p>
-<pre><code class="language-bash">Command           Installed Latest Status
-91                          0.5.0  Not installed
-ble-sniffer                 0.16.2 Not installed
-completion                  1.5.0  Not installed
-device                      2.9.0  Not installed
-npm                         0.3.0  Not installed
-nrf5sdk-tools     1.1.0     1.1.0  Installed
-sdk-manager                 1.1.0  Not installed
-suit                        0.9.0  Not installed
-toolchain-manager           0.15.0 Not installed
-trace                       3.3.1  Not installed
+<p>Then, when setting up the build configuration in VSCode, make sure to select <code>Optimize for debugging (-Og)</code> as the optimization level. This will ensure that the code is compiled with debugging information.</p>
+<h3 id="step-2-set-breakpoints">Step 2: Set Breakpoints</h3>
+<p>In VSCode, you can set breakpoints by clicking on the left margin next to the line numbers in your source code. For example, set a breakpoint at the line where the counter is incremented:</p>
+<pre><code class="language-c">// Shared function to safely update and print the counter
+void safe_increment(void)
+{
+    k_mutex_lock(&amp;counter_mutex, K_FOREVER);
+
+    shared_counter++; // &lt;- set breakpoint here
+    if (shared_counter &gt; counter_limit)
+    {
+        shared_counter = 0;
+    }
+
+    printk(&quot;[Mutex] Thread %p: counter = %d\n&quot;, k_current_get(), shared_counter);
+
+    k_mutex_unlock(&amp;counter_mutex);
+}
 </code></pre>
-<p>You should install the <code>device</code> command. This is required for flashing the firmware. To install it, run the following command:</p>
-<pre><code class="language-bash">nrfutil install device
-</code></pre>
+<p>There are also conditional breakpoints available in VSCode, but I could not get it to work properly.</p>
+<h3 id="step-3-add-variables-to-watch">Step 3: Add Variables to Watch</h3>
+<p>You can add variables to the watch list in VSCode to monitor their values during debugging. Right-click on the variable you want to watch (e.g., <code>shared_counter</code>) and select "Add to Watch". This will allow you to see the value of <code>shared_counter</code> as you step through the code.</p>
+<h3 id="step-4-start-debugging">Step 4: Start Debugging</h3>
+<p>To start debugging, click on the "Run and Debug" icon in the left sidebar of VSCode. Then click on the "Continue" button to start the debugging session. The program will run until it hits the breakpoint you set earlier. You can check the value of <code>shared_counter</code> in the watch list and step through the code using the debugging controls.</p>
+<h3 id="step-5-play-with-the-thread-viewer">Step 5: Play with the Thread Viewer</h3>
+<p>You can also use the Thread Viewer in VSCode to see the state of all threads. Click on the "NRF DEBUG" tab next to the terminal tab. This will show you a list of all threads, their states, and the current thread's stack trace. You can click on a thread to see its details and stack trace.</p>
+<h3 id="step-6-manually-toggle-leds">Step 6: Manually Toggle LEDs</h3>
+<p>The nRF52840 DK has four LEDs that you can manually toggle the GPIO pins to turn on/off the LEDs.</p>
+<ol>
+<li>Go to "Peripherals" in the left sidebar of VSCode.</li>
+<li>Click on "GPIO" to open the GPIO view.</li>
+<li>On the nRF52840 DK, the four green LEDs are connected to GPIO P0 pins 13, 14, 15, and 16. Click on the "DIR" menu to set the direction of the GPIO pins to "Output".</li>
+<li>The LEDs are active low, so to turn on an LED, you need to set the GPIO pin to low (0). To turn off an LED, set the GPIO pin to high (1). Usually, they are already set to low by default, so the previous step should have already turned on the LEDs.</li>
+</ol>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../ble-01-minimal-skeleton/" class="btn btn-neutral float-right" title="BLE-Minimal Skeleton">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../sdk-01-uart/" class="btn btn-neutral float-left" title="SDK-UART"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../os-01-basic/" class="btn btn-neutral float-right" title="OS-Basic">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -210,10 +241,10 @@ trace                       3.3.1  Not installed
         </span>
     
     
-      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href="../sdk-01-uart/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../ble-01-minimal-skeleton/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../os-01-basic/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
