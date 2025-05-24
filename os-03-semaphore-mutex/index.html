@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/os-03-semaphore-mutex/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>OS-Semaphore & Mutex - nRF Connect SDK Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "OS-Semaphore \u0026 Mutex";
+        var mkdocs_page_input_path = "os-03-semaphore-mutex.md";
+        var mkdocs_page_url = "/NrfConnectNotes/os-03-semaphore-mutex/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/django.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', "G-274394082");
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> nRF Connect SDK Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../setup-01-vscode/">Setup-VSCode</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-01-minimal-skeleton/">BLE-Minimal Skeleton</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-02-advertising-simple/">BLE-Advertising Simple</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-03-advert-connectable/">BLE-Advertising Connectable</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-04-conn-params/">BLE-Connection Parameters</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-05-gatt-client/">BLE-GATT Client Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-06-gatt-server/">BLE-GATT Server Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-07-security-modes/">BLE-Security Modes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-08-whitelisting/">BLE-Whitelisting</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../nfc-01-simple-text/">NFC-Introduction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../nfc-02-writable-tag/">NFC-Writable Tag</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../sdk-01-uart/">SDK-UART</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../os-01-basic/">OS-Basic</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../os-02-workqueue/">OS-Workqueue</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">OS-Semaphore & Mutex</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#semaphores">Semaphores</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#mutexes">Mutexes</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#synchronization-vs-data-sharing">Synchronization vs. Data Sharing</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#in-action-semaphore">In Action: Semaphore</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#step-1-project-configuration">Step 1: Project Configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-2-semaphore-definition">Step 2: Semaphore Definition</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-3-semaphore-threads">Step 3: Semaphore Threads</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#results">Results</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#in-action-mutex">In Action: Mutex</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#step-1-project-configuration_1">Step 1: Project Configuration</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-2-mutex-definition">Step 2: Mutex Definition</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-3-create-a-shared-function">Step 3: Create a Shared Function</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#step-4-mutex-threads">Step 4: Mutex Threads</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#results_1">Results</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">nRF Connect SDK Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">OS-Semaphore & Mutex</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/os-03-semaphore-mutex.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="os-03-semaphores-and-mutexes">OS 03: Semaphores and Mutexes</h1>
+<p><strong>Author:</strong> Tony Fu<br />
+<strong>Date:</strong> 2025/05/11 <br />
+<strong>Device:</strong> nRF52840 DK<br />
+<strong>Toolchain:</strong> nRF Connect SDK v3.0.0  </p>
+<p>Every RTOS has its own implementation of semaphores and mutexes. While the core concepts are similar, the details can vary, so pay close attention to the specifics described here:</p>
+<hr />
+<h2 id="semaphores">Semaphores</h2>
+<ul>
+<li>Used to control access to a shared resource by limiting how many threads can access it simultaneously. It can also be used for event signaling between threads.</li>
+<li>Semaphores typically start with a non-zero initial count, indicating how many threads can acquire the semaphore without blocking.</li>
+<li>Semaphores are not "owned" by any thread; ownership does not apply, and therefore <strong>priority inheritance</strong> is <strong>not supported</strong>.</li>
+<li>A semaphore is <strong>given</strong> (i.e., its count is incremented) using <code>k_sem_give()</code>. This operation is <strong>safe to call from ISRs</strong>, but it has no effect if the count is already at its configured maximum.</li>
+<li>A semaphore is <strong>taken</strong> (i.e., its count is decremented) using <code>k_sem_take()</code>. If the count is zero, the calling thread blocks until the semaphore is available (unless a timeout is specified). <strong>Blocking take is not allowed from ISRs</strong>.</li>
+</ul>
+<hr />
+<h2 id="mutexes">Mutexes</h2>
+<ul>
+<li>Used to ensure mutual exclusion in critical sections, allowing only one thread at a time to access a protected resource.</li>
+<li>A <strong>mutex is owned</strong> by the thread that successfully locks it. Only the owning thread can unlock it.</li>
+<li><strong>Priority inheritance</strong> is supported: if a lower-priority thread holds a mutex and a higher-priority thread attempts to acquire it, the lower-priority thread temporarily inherits the higher priority. This mechanism reduces the risk of <strong>priority inversion</strong>, where a low-priority thread blocks high-priority ones by holding a shared resource.</li>
+<li>A mutex has two states: <strong>locked</strong> and <strong>unlocked</strong>. It is always initially unlocked.</li>
+<li>Zephyr’s mutexes support <strong>recursive locking</strong>, meaning the owning thread can lock the mutex multiple times. The mutex is only released when it is unlocked the same number of times it was locked.</li>
+<li><strong>Mutexes cannot be used in ISRs</strong>, because mutex logic depends on thread scheduling and priority handling, which are not meaningful in interrupt context.</li>
+</ul>
+<hr />
+<h2 id="synchronization-vs-data-sharing">Synchronization vs. Data Sharing</h2>
+<p>Semaphores and mutexes are used primarily for synchronization — not data passing, which typically uses queues. We will cover different types of queues in a later note.</p>
+<hr />
+<h2 id="in-action-semaphore">In Action: Semaphore</h2>
+<p>In this example, we define two semaphore threads: one continuously waits for a signal (<code>sem_receiver_thread</code>), and the other periodically sends that signal (<code>sem_sender_thread</code>).</p>
+<h3 id="step-1-project-configuration">Step 1: Project Configuration</h3>
+<p>Although this config is usually enabled by default, for clarity, we explicitly enable multithreading support in <code>prj.conf</code>:</p>
+<pre><code class="language-kconfig">CONFIG_MULTITHREADING=y
+</code></pre>
+<h3 id="step-2-semaphore-definition">Step 2: Semaphore Definition</h3>
+<p>In <code>src/main.c</code>, we define a semaphore with an initial count of 0, meaning it starts in a state where no threads can take it until it is given. We have also set the maximum count to 1, which is a common practice for semaphores used for signaling.</p>
+<pre><code class="language-c">K_SEM_DEFINE(sync_sem, 0, 1);
+</code></pre>
+<h3 id="step-3-semaphore-threads">Step 3: Semaphore Threads</h3>
+<p>We define two threads: <code>sem_receiver_thread</code> and <code>sem_sender_thread</code>. The receiver thread waits for the semaphore to be given, while the sender thread periodically gives the semaphore.</p>
+<pre><code class="language-c">// Thread A: waits for a signal
+void sem_receiver_thread(void)
+{
+    while (1)
+    {
+        printk(&quot;[Semaphore] Receiver: waiting for signal...\n&quot;);
+        k_sem_take(&amp;sync_sem, K_FOREVER);
+        printk(&quot;[Semaphore] Receiver: got the signal!\n&quot;);
+        k_sleep(K_MSEC(1000));
+    }
+}
+
+// Thread B: sends a signal
+void sem_sender_thread(void)
+{
+    while (1)
+    {
+        k_sleep(K_MSEC(2000));
+        printk(&quot;[Semaphore] Sender: sending signal...\n&quot;);
+        k_sem_give(&amp;sync_sem);
+    }
+}
+
+K_THREAD_DEFINE(sem_recv_id, STACK_SIZE, sem_receiver_thread, NULL, NULL, NULL,
+                SEM_THREAD_PRIORITY, 0, 0);
+
+K_THREAD_DEFINE(sem_send_id, STACK_SIZE, sem_sender_thread, NULL, NULL, NULL,
+                SEM_THREAD_PRIORITY, 0, 0);
+</code></pre>
+<h3 id="results">Results</h3>
+<p>When you run the program, you should see the receiver thread waiting for a signal, and every two seconds, the sender thread sends a signal. The receiver thread then prints that it received the signal and sleeps for one second before waiting for the next signal.</p>
+<pre><code>[Semaphore] Sender: sending signal...
+[Semaphore] Receiver: got the signal!
+</code></pre>
+<hr />
+<h2 id="in-action-mutex">In Action: Mutex</h2>
+<p>In this example, we create two mutex threads (<code>mutex_worker_thread_1 and _2</code>) safely increment a shared counter using a mutex (<code>counter_mutex</code>) to avoid race conditions. The counter resets after reaching a limit of 100, and each thread prints its activity.</p>
+<h3 id="step-1-project-configuration_1">Step 1: Project Configuration</h3>
+<p>Just like with semaphores, we ensure multithreading support is enabled in <code>prj.conf</code>.</p>
+<h3 id="step-2-mutex-definition">Step 2: Mutex Definition</h3>
+<p>In <code>src/main.c</code>, we define a mutex for protecting access to the shared counter:</p>
+<pre><code class="language-c">K_MUTEX_DEFINE(counter_mutex);
+</code></pre>
+<h3 id="step-3-create-a-shared-function">Step 3: Create a Shared Function</h3>
+<p>We will create a function <code>safe_increment()</code> that safely increments the shared counter using the mutex. This function will be called by both threads.</p>
+<pre><code class="language-c">int shared_counter = 0;
+const int counter_limit = 100;
+
+void safe_increment(void)
+{
+    k_mutex_lock(&amp;counter_mutex, K_FOREVER);
+
+    shared_counter++;
+    if (shared_counter &gt; counter_limit)
+    {
+        shared_counter = 0;
+    }
+
+    printk(&quot;[Mutex] Thread %p: counter = %d\n&quot;, k_current_get(), shared_counter);
+
+    k_mutex_unlock(&amp;counter_mutex);
+}
+</code></pre>
+<h3 id="step-4-mutex-threads">Step 4: Mutex Threads</h3>
+<p>We define two threads that will call <code>safe_increment()</code> to increment the shared counter.</p>
+<pre><code class="language-c">void mutex_worker_thread_1(void)
+{
+    while (1)
+    {
+        safe_increment();
+        k_sleep(K_MSEC(500));
+    }
+}
+
+void mutex_worker_thread_2(void)
+{
+    while (1)
+    {
+        safe_increment();
+        k_sleep(K_MSEC(700));
+    }
+}
+
+K_THREAD_DEFINE(mutex_thread1_id, STACK_SIZE, mutex_worker_thread_1, NULL, NULL, NULL,
+                MUTEX_THREAD_PRIORITY, 0, 0);
+
+K_THREAD_DEFINE(mutex_thread2_id, STACK_SIZE, mutex_worker_thread_2, NULL, NULL, NULL,
+                MUTEX_THREAD_PRIORITY, 0, 0);
+</code></pre>
+<h3 id="results_1">Results</h3>
+<p>When you run the program, both threads will increment the shared counter safely using the mutex. The output will show the counter value being incremented by each thread, demonstrating that the mutex prevents the counter from being updated simultaneously by both threads:</p>
+<pre><code>[Mutex] Thread 0x20000660: counter = 92
+[Mutex] Thread 0x200006e0: counter = 93
+[Mutex] Thread 0x20000660: counter = 94
+[Mutex] Thread 0x200006e0: counter = 95
+[Mutex] Thread 0x20000660: counter = 96
+[Mutex] Thread 0x200006e0: counter = 97
+[Mutex] Thread 0x200006e0: counter = 98
+[Mutex] Thread 0x20000660: counter = 99
+[Mutex] Thread 0x200006e0: counter = 100
+[Mutex] Thread 0x20000660: counter = 0
+[Mutex] Thread 0x200006e0: counter = 1
+[Mutex] Thread 0x20000660: counter = 2
+[Mutex] Thread 0x200006e0: counter = 3
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../os-02-workqueue/" class="btn btn-neutral float-left" title="OS-Workqueue"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../os-02-workqueue/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
