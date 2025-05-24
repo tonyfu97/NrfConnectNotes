@@ -32,6 +32,7 @@ nav:
     - NFC-Introduction: nfc-01-simple-text.md
     - NFC-Writable Tag: nfc-02-writable-tag.md
     - SDK-UART: sdk-01-uart.md
+    - SDK-Debugging: sdk-02-debugging.md
     - OS-Basic: os-01-basic.md
     - OS-Workqueue: os-02-workqueue.md
     - OS-Semaphore & Mutex: os-03-semaphore-mutex.md
