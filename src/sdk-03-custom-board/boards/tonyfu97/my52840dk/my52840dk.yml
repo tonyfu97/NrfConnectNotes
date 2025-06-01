@@ -1,0 +1,10 @@
+identifier: my52840dk/nrf52840
+name: My 52840 DK
+vendor: tonyfu97
+type: mcu
+arch: arm
+ram: 256
+flash: 1024
+toolchain:
+  - zephyr
+supported: []
