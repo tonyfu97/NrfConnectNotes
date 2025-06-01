@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="author" content="Tony Fu" /><link rel="canonical" href="https://tonyfu97.github.io/NrfConnectNotes/sdk-03-custom-board/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>SDK-Custom Board Support - nRF Connect SDK Notes</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "SDK-Custom Board Support";
+        var mkdocs_page_input_path = "sdk-03-custom-board.md";
+        var mkdocs_page_url = "/NrfConnectNotes/sdk-03-custom-board/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/yaml.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/languages/django.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-274394082"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', "G-274394082");
+      </script>
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> nRF Connect SDK Notes
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../setup-01-vscode/">Setup-VSCode</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-01-minimal-skeleton/">BLE-Minimal Skeleton</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-02-advertising-simple/">BLE-Advertising Simple</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-03-advert-connectable/">BLE-Advertising Connectable</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-04-conn-params/">BLE-Connection Parameters</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-05-gatt-client/">BLE-GATT Client Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-06-gatt-server/">BLE-GATT Server Operations</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-07-security-modes/">BLE-Security Modes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../ble-08-whitelisting/">BLE-Whitelisting</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../nfc-01-simple-text/">NFC-Introduction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../nfc-02-writable-tag/">NFC-Writable Tag</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../sdk-01-uart/">SDK-UART</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../sdk-02-debugging/">SDK-Debugging</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">SDK-Custom Board Support</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#creating-custom-board-support-using-west">Creating Custom Board support using West</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#creating-custom-board-support-using-vs-code-gui">Creating Custom Board Support using VS Code GUI</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#default-configuration-file-my52840dk_defconfig">Default Configuration File: my52840dk_defconfig</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#device-tree-source-file-my52840dkdts">Device Tree Source File: my52840dk.dts</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#1-header">1. Header</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#2-root-node">2. Root Node</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#3-flash-and-partition-layout">3. Flash and Partition Layout</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#pin-control-file-my52840dk-pinctrldtsi">Pin Control File: my52840dk-pinctrl.dtsi</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../os-01-basic/">OS-Basic</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../os-02-workqueue/">OS-Workqueue</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../os-03-semaphore-mutex/">OS-Semaphore & Mutex</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">nRF Connect SDK Notes</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">SDK-Custom Board Support</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/tonyfu97/NrfConnectNotes/blob/master/docs/sdk-03-custom-board.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="sdk-03-custom-board-support-using-vs-code-gui">SDK 03: Custom Board Support using VS Code GUI</h1>
+<p><strong>Author:</strong> Tony Fu<br />
+<strong>Date:</strong> 2025/06/01<br />
+<strong>Device:</strong> nRF52840 DK<br />
+<strong>Toolchain:</strong> nRF Connect SDK v3.0.0  </p>
+<hr />
+<p>We will go over how to create a simple custom board definition for the nRF52840 DK in the nRF Connect SDK using the GUI in VS Code. Then, we will use the board definition to build a simple blinky application to run on nRF52840 DK.</p>
+<hr />
+<h2 id="creating-custom-board-support-using-west">Creating Custom Board support using West</h2>
+<p>In Zephyr, a "board target" correspond to an image of a specific hardware. I know, it sounds a bit abstract. But here is a breakdown. The name of a board target consists of the following parts:</p>
+<ul>
+<li><strong>Board Name (Must have)</strong>: The name of the board, such as <code>nrf5340dk</code>.</li>
+<li><strong>Version (Optional)</strong>: The version of the board, such as <code>0.1.0</code>.</li>
+<li><strong>SoC (Must have)</strong>: The name of the SoC, such as <code>nrf5340</code>.</li>
+<li><strong>CPU Cluster (Optional)</strong>: The CPU cluster of the SoC, such as <code>cpunet</code> for network processor or <code>cpuapp</code> for application processor.</li>
+<li><strong>Variant (Optional)</strong>: The variant of the board, such as <code>ns</code> for Trusted Firmware-M support.</li>
+</ul>
+<p>For example, the board target <code>nrf5340dk@0.1.0/nrf5340/cpunet/ns</code> corresponds to the nRF5340 DK board with the nRF5340 SoC, using the network processor cluster, and supporting Trusted Firmware-M. Notice that they are formatted as a path-like structure, which is how the build tool "west" organizes board targets. So, to create the above board target in your designated directory where you store all your custom boards, you would create a directory structure like this:</p>
+<pre><code class="language-bash">west build -b nrf5340dk@0.1.0/nrf5340/cpunet/ns -- -DBOARD_ROOT=C:/nordic/myBoards
+</code></pre>
+<p>You need to create all the board targets required by your board, so this mean you need to also call <code>west build</code> for the application processor cluster:</p>
+<pre><code class="language-bash">west build -b nrf5340dk@0.1.0/nrf5340/cpuapp -- -DBOARD_ROOT=C:/nordic/myBoards
+</code></pre>
+<p>This is the traditional way to create a custom board target in Zephyr. However, we will use the GUI in VS Code to make it easier.</p>
+<hr />
+<h2 id="creating-custom-board-support-using-vs-code-gui">Creating Custom Board Support using VS Code GUI</h2>
+<p>On the left side of the VS Code, open the "nRF Connect" extension view. Then click on "Create a new board" button. This will open a window to create a new board target. You will need to fill in the following fields:</p>
+<ul>
+<li><strong>Board Name</strong>: The name of the board, such as <code>my52840dk</code>.</li>
+<li><strong>Description</strong>: A short description of the board. This is usually just the board name formatted in a more human readable way, such as <code>My 52840 DK</code>.</li>
+<li><strong>Vendor name</strong>: The name of the vendor. Since I am an individual hobbyist, I will use my github username <code>tonyfu97</code>.</li>
+<li><strong>SoC</strong>: This is a dropdown list of all the SoCs supported by the nRF Connect SDK. For our example, select <code>nRF52840-QIAA</code> (same package used in nRF52840). The GUI will automatically create all the required board targets for the SoC. </li>
+<li><strong>Board root</strong>: This is the directory where you want to store your custom board targets. You can use the default value, which is <code>C:/nordic/myBoards</code> in this example.</li>
+</ul>
+<p>Then click on the "Create Board" button. The GUI will create the following directory structure in your designated board root directory:</p>
+<pre><code>C:
+└───myBoards
+    └───tonyfu97
+        └───my52840dk
+                board.cmake
+                board.yml
+                Kconfig.my52840dk
+                my52840dk-pinctrl.dtsi
+                my52840dk.dts
+                my52840dk.yml
+                my52840dk_defconfig
+                pre_dt_board.cmake
+</code></pre>
+<p>You can see that the GUI has created all the required files for the board target. We will go over the important files in the next section.</p>
+<hr />
+<h2 id="default-configuration-file-my52840dk_defconfig">Default Configuration File: <code>my52840dk_defconfig</code></h2>
+<p>This configuration file will be applied to the board target when building the application. However, the configuration in <code>prj.conf</code> will override the configuration in this file. This is useful for setting default configurations for the board target, such as enabling hardware features or disabling unused features.</p>
+<p>The auto-generated <code>my52840dk_defconfig</code> file already contains the following configuration options:</p>
+<pre><code class="language-kconfig">CONFIG_ARM_MPU=y
+CONFIG_HW_STACK_PROTECTION=y
+</code></pre>
+<p>We can foresee the following configurations will be needed for our custom board, so we will append them to the <code>my52840dk_defconfig</code> file:</p>
+<pre><code class="language-kconfig"># Enable RTT
+CONFIG_USE_SEGGER_RTT=y
+
+# enable GPIO
+CONFIG_GPIO=y
+
+# enable uart driver
+CONFIG_SERIAL=y
+
+# enable console
+CONFIG_CONSOLE=y
+CONFIG_UART_CONSOLE=y
+</code></pre>
+<hr />
+<h2 id="device-tree-source-file-my52840dkdts">Device Tree Source File: <code>my52840dk.dts</code></h2>
+<p>While the kconfig files handle software configuration, the device tree source (DTS) file describes the hardware layout of the board. This is crucial for Zephyr to understand how to interact with the hardware components.</p>
+<p>The device tree source file is used to describe the hardware of the board. The GUI has already created a basic device tree source file for us, which includes the following:</p>
+<h3 id="1-header">1. <strong>Header</strong></h3>
+<pre><code class="language-dts">/dts-v1/;
+#include &lt;nordic/nrf52840_qiaa.dtsi&gt;
+#include &quot;my52840dk-pinctrl.dtsi&quot;
+</code></pre>
+<ul>
+<li>Includes common definitions for the <strong>nRF52840 QIAA</strong> variant.</li>
+<li>Includes your board-specific pin control configuration. We will go over the pin control file later.</li>
+</ul>
+<h3 id="2-root-node">2. <strong>Root Node</strong></h3>
+<pre><code class="language-dts">/ {
+    model = &quot;My 52840 DK&quot;;
+    compatible = &quot;tonyfu97,my52840dk&quot;;
+
+    chosen {
+        zephyr,sram = &amp;sram0;
+        zephyr,flash = &amp;flash0;
+        zephyr,code-partition = &amp;slot0_partition;
+    };
+};
+</code></pre>
+<ul>
+<li>Declares board name and unique ID string.</li>
+<li><code>chosen</code> tells Zephyr the default hardware configurations. In this case, it specifies the SRAM and flash memory regions, as well as the primary code partition.</li>
+</ul>
+<h3 id="3-flash-and-partition-layout">3. <strong>Flash and Partition Layout</strong></h3>
+<pre><code class="language-dts">&amp;flash0 {
+    partitions {
+        compatible = &quot;fixed-partitions&quot;;
+        #address-cells = &lt;1&gt;;
+        #size-cells = &lt;1&gt;;
+</code></pre>
+<ul>
+<li><code>&amp;flash0</code> refers to the main flash device from the included <code>.dtsi</code>.</li>
+<li>Defines fixed partitions with absolute addresses and sizes.</li>
+</ul>
+<p>Partition definitions:</p>
+<pre><code class="language-dts">        boot_partition: partition@0 {
+            label = &quot;mcuboot&quot;;
+            reg = &lt;0x00000000 DT_SIZE_K(48)&gt;;
+        };
+
+        slot0_partition: partition@c000 {
+            label = &quot;image-0&quot;;
+            reg = &lt;0x0000c000 DT_SIZE_K(472)&gt;;
+        };
+
+        slot1_partition: partition@82000 {
+            label = &quot;image-1&quot;;
+            reg = &lt;0x00082000 DT_SIZE_K(472)&gt;;
+        };
+
+        storage_partition: partition@f8000 {
+            label = &quot;storage&quot;;
+            reg = &lt;0x000f8000 DT_SIZE_K(32)&gt;;
+        };
+</code></pre>
+<ul>
+<li><code>mcuboot</code>: reserved for the bootloader.</li>
+<li><code>image-0</code> / <code>image-1</code>: main and backup firmware images (for DFU).</li>
+<li><code>storage</code>: typically used for settings or filesystem.</li>
+</ul>
+<p>However, <strong>this autogenerated DTS file is not sufficient</strong>. We have to also specify the peripherals (e.g., GPIO, UART, I2C, SPI, and PWM) and their configuration. </p>
+<p>First, we need to turn them on outside of the root node. Add this to the end of the DTS file:</p>
+<pre><code class="language-dts">&amp;gpiote {
+    status = &quot;okay&quot;;
+};
+
+&amp;gpio0 {
+    status = &quot;okay&quot;;
+};
+
+&amp;gpio1 {
+    status = &quot;okay&quot;;
+};
+
+&amp;uart0 {
+    compatible = &quot;nordic,nrf-uarte&quot;;
+    status = &quot;okay&quot;;
+    current-speed = &lt;115200&gt;;
+    pinctrl-0 = &lt;&amp;uart0_default&gt;;
+    pinctrl-1 = &lt;&amp;uart0_sleep&gt;;
+    pinctrl-names = &quot;default&quot;, &quot;sleep&quot;;
+};
+
+&amp;i2c0 {
+    compatible = &quot;nordic,nrf-twi&quot;;
+    status = &quot;okay&quot;;
+    pinctrl-0 = &lt;&amp;i2c0_default&gt;;
+    pinctrl-1 = &lt;&amp;i2c0_sleep&gt;;
+    pinctrl-names = &quot;default&quot;, &quot;sleep&quot;;
+};
+
+&amp;spi1 {
+    compatible = &quot;nordic,nrf-spi&quot;;
+    status = &quot;okay&quot;;
+    pinctrl-0 = &lt;&amp;spi1_default&gt;;
+    pinctrl-1 = &lt;&amp;spi1_sleep&gt;;
+    pinctrl-names = &quot;default&quot;, &quot;sleep&quot;;
+};
+
+&amp;pwm0 {
+    status = &quot;okay&quot;;
+    pinctrl-0 = &lt;&amp;pwm0_default&gt;;
+    pinctrl-1 = &lt;&amp;pwm0_sleep&gt;;
+    pinctrl-names = &quot;default&quot;, &quot;sleep&quot;;
+};
+</code></pre>
+<p>Notice that for the serial protocols (UART, I2C, SPI), we have specified the pin control configurations. These configurations are defined in the <code>my52840dk-pinctrl.dtsi</code> file, which we will go over next. Briefly, it is used to tell which pins are used for which function, such as UART TX/RX, I2C SCL/SDA, SPI MOSI/MISO/SCK, and PWM output. Also, the "compatible" property is used to specify the driver for the peripheral.</p>
+<p>Then, inside of the root node (<code>/ { ... }</code>), we need to add the following to support the LEDs, buttons, and PWM LEDs. This is done by exposing them using aliases and defining their properties. The following is the complete device tree source file for our custom board:</p>
+<pre><code class="language-dts">/ {
+    model = &quot;My 52840 DK&quot;;
+    compatible = &quot;tonyfu97,my52840dk&quot;;
+
+    chosen {
+        zephyr,sram = &amp;sram0;
+        zephyr,flash = &amp;flash0;
+        zephyr,code-partition = &amp;slot0_partition;
+        zephyr,console =  &amp;uart0 ;
+        zephyr,shell-uart =  &amp;uart0 ;
+        zephyr,uart-mcumgr = &amp;uart0;
+    };
+
+    leds {
+        compatible = &quot;gpio-leds&quot;;
+        led0: led_0 {
+            gpios = &lt;&amp;gpio0 13 GPIO_ACTIVE_LOW&gt;;
+            label = &quot;Green LED 0&quot;;
+        };
+        led1: led_1 {
+            gpios = &lt;&amp;gpio0 14 GPIO_ACTIVE_LOW&gt;;
+            label = &quot;Green LED 1&quot;;
+        };
+        led2: led_2 {
+            gpios = &lt;&amp;gpio0 15 GPIO_ACTIVE_LOW&gt;;
+            label = &quot;Green LED 2&quot;;
+        };
+        led3: led_3 {
+            gpios = &lt;&amp;gpio0 16 GPIO_ACTIVE_LOW&gt;;
+            label = &quot;Green LED 3&quot;;
+        };
+    };  
+
+    buttons {
+        compatible = &quot;gpio-keys&quot;;
+        button0: button_0 {
+            gpios = &lt;&amp;gpio0 11 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)&gt;;
+            label = &quot;Push button switch 0&quot;;
+            zephyr,code = &lt;INPUT_KEY_0&gt;;
+        };
+        button1: button_1 {
+            gpios = &lt;&amp;gpio0 12 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)&gt;;
+            label = &quot;Push button switch 1&quot;;
+            zephyr,code = &lt;INPUT_KEY_1&gt;;
+        };
+        button2: button_2 {
+            gpios = &lt;&amp;gpio0 24 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)&gt;;
+            label = &quot;Push button switch 2&quot;;
+            zephyr,code = &lt;INPUT_KEY_2&gt;;
+        };
+        button3: button_3 {
+            gpios = &lt;&amp;gpio0 25 (GPIO_PULL_UP | GPIO_ACTIVE_LOW)&gt;;
+            label = &quot;Push button switch 3&quot;;
+            zephyr,code = &lt;INPUT_KEY_3&gt;;
+        };
+    };
+
+    pwmleds {
+        compatible = &quot;pwm-leds&quot;;
+        pwm_led0: pwm_led_0 {
+            pwms = &lt;&amp;pwm0 0 PWM_MSEC(20) PWM_POLARITY_INVERTED&gt;;
+        };
+    };
+
+    /* These aliases are provided for compatibility with samples */
+    aliases {
+        led0 = &amp;led0;
+        led1 = &amp;led1;
+        led2 = &amp;led2;
+        led3 = &amp;led3;
+        pwm-led0 = &amp;pwm_led0;
+        sw0 = &amp;button0;
+        sw1 = &amp;button1;
+        sw2 = &amp;button2;
+        sw3 = &amp;button3;
+        bootloader-led0 = &amp;led0;
+        mcuboot-button0 = &amp;button0;
+        mcuboot-led0 = &amp;led0;
+        watchdog0 = &amp;wdt0;
+    };      
+};      
+</code></pre>
+<p>You also need to include the input event codes header file to define the button codes. This is done by adding the following line at the top of the DTS file:</p>
+<pre><code class="language-dts">#include &lt;zephyr/dt-bindings/input/input-event-codes.h&gt;
+</code></pre>
+<hr />
+<h2 id="pin-control-file-my52840dk-pinctrldtsi">Pin Control File: <code>my52840dk-pinctrl.dtsi</code></h2>
+<p>The "Device Tree Source Include" (dsti) file is used to define the pin control configurations for the board. This file is included in the main DTS file and contains the pin configurations for the peripherals.</p>
+<p>The auto-generated <code>my52840dk-pinctrl.dtsi</code> file is almost empty:</p>
+<pre><code class="language-dts">&amp;pinctrl {
+};
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../sdk-02-debugging/" class="btn btn-neutral float-left" title="SDK-Debugging"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../os-01-basic/" class="btn btn-neutral float-right" title="OS-Basic">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+      <p>Copyright &copy; 2025 Tony Fu</p>
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/tonyfu97/NrfConnectNotes" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../sdk-02-debugging/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../os-01-basic/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
