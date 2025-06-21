@@ -2,78 +2,82 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/ble-01-minimal-skeleton/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/ble-02-advertising-simple/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/ble-03-advert-connectable/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/ble-04-conn-params/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/ble-05-gatt-client/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/ble-06-gatt-server/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/ble-07-security-modes/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/ble-08-whitelisting/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/nfc-01-simple-text/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/nfc-02-writable-tag/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/os-01-basic/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/os-02-workqueue/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/os-03-semaphore-mutex/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/sdk-01-uart/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/sdk-02-debugging/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/sdk-03-custom-board/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
+    </url>
+    <url>
+         <loc>https://tonyfu97.github.io/NrfConnectNotes/sdk-04-custom-driver/</loc>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/setup-01-vscode/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
     <url>
          <loc>https://tonyfu97.github.io/NrfConnectNotes/setup-02-prj-conf-trick/</loc>
-         <lastmod>2025-06-01</lastmod>
+         <lastmod>2025-06-21</lastmod>
     </url>
 </urlset>
